@@ -1,0 +1,17 @@
+# Ignore Hugging Face cache and downloaded models
+**/model/
+**/models/
+**/checkpoints/
+*.bin
+*.h5
+*.pt
+*.ckpt
+*.onnx
+*.tflite
+*.pb
+tokenizer_config.json
+vocab.txt
+special_tokens_map.json
+
+# Hugging Face Transformers cache
+~/.cache/huggingface/

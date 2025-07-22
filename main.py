@@ -5,12 +5,42 @@ import spacy
 from typing import List
 from datetime import datetime
 import random
-
+from replay_engine import build_replay
+from datetime import datetime
+from pydantic import BaseModel
+from typing import List
 app = FastAPI()
 
 # Load models
 emotion_pipeline = pipeline("text-classification", model="nateraw/bert-base-uncased-emotion")
 nlp = spacy.load("en_core_web_sm")
+
+
+
+
+class ReplayRequest(BaseModel):
+    user_text: str
+    mood: str
+    longitude: float
+    latitude: float
+    events: List[str]
+    context_tags: List[str]
+    create_date: str
+
+
+@app.post("/replay")
+def generate_replay(request: ReplayRequest):
+    sample = request.dict()
+    context = {
+        "mood_today": sample["mood"],
+        "user_location": {
+            "lat": sample["latitude"],
+            "lng": sample["longitude"]
+        },
+        "today_date": datetime.utcnow().strftime('%Y-%m-%d')
+    }
+    replay = build_replay(sample, context)
+    return replay
 
 class TextRequest(BaseModel):
     text: str

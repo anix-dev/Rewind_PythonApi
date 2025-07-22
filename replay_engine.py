@@ -1,0 +1,100 @@
+# replay_engine.py
+
+import google.generativeai as genai
+from datetime import datetime
+import os
+from dotenv import load_dotenv
+import requests
+
+load_dotenv()
+
+# Load Gemini API Key from .env
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+model = genai.GenerativeModel("models/gemini-1.5-flash")
+
+
+# Keyword-based tag categorization
+keyword_categories = {
+    "life_goal": ["dream", "goal", "aspire", "ambition", "bucket list", "always wanted", "before I die"],
+    "travel_event": ["trip", "travel", "vacation", "journey", "tour", "destination", "flight", "hotel", "goa", "europe", "mountains", "beach", "desert safari", "hill station", "paris", "london", "trek", "camping"],
+    "missed_event": ["missed", "forgot", "couldn't", "didn't", "left out", "cancelled", "skipped", "was late for"],
+    "special_day": ["birthday", "anniversary", "special day", "valentine", "festival", "new year", "eid", "diwali", "christmas", "holi"],
+    "milestone": ["graduation", "promotion", "wedding", "achievement", "won", "completed", "retired", "first job", "milestone", "passed exam", "trophy", "medal", "award", "certification"],
+    "relationship_event": ["friend", "partner", "boyfriend", "girlfriend", "wife", "husband", "son", "daughter", "mom", "dad", "parents", "family", "sibling", "teacher", "colleague", "boss"],
+    "reflection": ["remember", "recall", "think back", "reflected", "looking back", "used to", "reminiscing", "memory", "nostalgia"],
+    "loss_or_challenge": ["lost", "failure", "death", "passed away", "struggled", "broke", "hurt", "sick", "injury", "pain", "accident", "disappointed", "rejected", "heartbreak", "illness", "depression"],
+    "sports_event": ["match", "game", "tournament", "won", "lost", "scored", "cricket", "football", "badminton", "played", "team", "goal", "innings", "batting", "bowling", "umpire", "stadium"]
+}
+
+
+def get_location_name(latitude: float, longitude: float) -> str:
+    try:
+        response = requests.get(
+            f"https://nominatim.openstreetmap.org/reverse",
+            params={
+                "lat": latitude,
+                "lon": longitude,
+                "format": "json",
+                "zoom": 10
+            },
+            headers={"User-Agent": "mood-reflection-app"}
+        )
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("display_name", "Unknown location")
+        else:
+            return "Unknown location"
+    except Exception as e:
+        return "Unknown location"
+
+
+def extract_tags(text: str):
+    tags = []
+    for category, keywords in keyword_categories.items():
+        if any(word.lower() in text.lower() for word in keywords):
+            tags.append(category)
+    return tags
+
+def score_replay_opportunity(text: str, mood: str) -> float:
+    base_score = 0.4
+    if "celebrate" in text or "won" in text:
+        base_score += 0.3
+    if mood in ["joy", "pride"]:
+        base_score += 0.2
+    elif mood in ["sadness", "regret"]:
+        base_score += 0.1
+    return min(base_score, 1.0)
+
+def build_replay(data: dict, context: dict) -> dict:
+    user_text = data.get("user_text", "")
+    mood = data.get("mood", "")
+    latitude = data.get("latitude")
+    longitude = data.get("longitude")
+
+    # Extract relevant tags and score
+    context_tags = extract_tags(user_text)
+    replay_opportunity_score = score_replay_opportunity(user_text, mood)
+
+    # Get human-readable location
+    location_name = get_location_name(latitude, longitude) if latitude and longitude else "Unknown location"
+
+    # Ask Gemini to generate the AI message
+    prompt = (
+        f"You are an emotional reflection assistant.\n"
+        f"User wrote: '{user_text}'\n"
+        f"Mood: {mood}\n"
+        f"Location: {location_name}\n"
+        f"Context tags: {context_tags}\n"
+        f"Generate a short replay_message (1-2 sentences) that encourages the user to reflect on this memory."
+    )
+
+    response = model.generate_content(prompt)
+    ai_response = response.text.strip() if response else "Here's a reflection opportunity for you."
+
+    return {
+        "ai_response": ai_response,
+        "replay_opportunity_score": replay_opportunity_score,
+        "context_tags": context_tags,
+        "location": location_name
+    }

@@ -71,6 +71,7 @@ def build_replay(data: dict, context: dict) -> dict:
     mood = data.get("mood", "")
     latitude = data.get("latitude")
     longitude = data.get("longitude")
+    create_date = data.get("create_date", datetime.now().strftime("%Y-%m-%d"))
 
     # Extract relevant tags and score
     context_tags = extract_tags(user_text)
@@ -81,13 +82,22 @@ def build_replay(data: dict, context: dict) -> dict:
 
     # Ask Gemini to generate the AI message
     prompt = (
-        f"You are an emotional reflection assistant.\n"
-        f"User wrote: '{user_text}'\n"
-        f"Mood: {mood}\n"
-        f"Location: {location_name}\n"
-        f"Context tags: {context_tags}\n"
-        f"Generate a short replay_message (1-2 sentences) that encourages the user to reflect on this memory."
-    )
+    f"You are an emotional reflection assistant for a journaling and memory replay app called REWIND.\n"
+    f"Your goal is to generate a warm, emotionally intelligent `replay_message` (1–2 sentences) that encourages the user to reflect on and emotionally reconnect with a specific past memory.\n\n"
+    f"Use the following inputs:\n"
+    f"- User memory: '{user_text}'\n"
+    f"- Mood: {mood}\n"
+    f"- Location: {location_name}\n"
+    f"- Context tags: {context_tags}\n"
+    f"- Date of event: {create_date}\n\n"
+    f"Instructions:\n"
+    f"1. Acknowledge the significance of the moment emotionally (based on mood).\n"
+    f"2. Mention the location or date if it adds personal or nostalgic weight.\n"
+    f"3. Encourage the user to pause, reflect, or emotionally rewind that moment.\n"
+    f"4. Keep it personal, thoughtful, and written in a warm and slightly poetic AI tone.\n"
+    f"5. Do not repeat the exact user text. Rephrase meaningfully.\n\n"
+    f"Now generate the `replay_message`."
+)
 
     response = model.generate_content(prompt)
     ai_response = response.text.strip() if response else "Here's a reflection opportunity for you."

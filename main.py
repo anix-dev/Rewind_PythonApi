@@ -73,11 +73,19 @@ keyword_categories = {
     ],
     "loss_or_challenge": [
         "lost", "failure", "death", "passed away", "struggled", "broke", "hurt", "sick", "injury",
-        "pain", "accident", "disappointed", "rejected", "heartbreak", "illness", "depression"
+        "pain", "accident", "disappointed", "rejected", "heartbreak", "illness", "depression","breakup"
     ],
     "sports_event": [
         "match", "game", "tournament", "won", "lost", "scored", "cricket", "football", "badminton",
         "played", "team", "goal", "innings", "batting", "bowling", "umpire", "stadium"
+    ],
+     "health": [
+        "health", "fitness", "workout", "gym", "exercise", "yoga", "diet", "meditation", "wellness",
+        "doctor", "hospital", "surgery", "therapy", "recovery", "illness", "medicine", "pain", "checkup", "mental health"
+    ],
+      "health": [
+        "exercise", "gym", "fitness", "diet", "yoga", "workout", "wellness", "checkup", "health issue", "doctor",
+        "hospital", "therapy", "mental health", "recovery", "meditation", "medicine", "clinic", "surgery", "nutrition"
     ]
 }
 

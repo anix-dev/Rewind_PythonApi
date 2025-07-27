@@ -9,6 +9,7 @@ from replay_engine import build_replay
 from datetime import datetime
 from pydantic import BaseModel
 from typing import List
+from emotions import router as emotions_router
 app = FastAPI()
 
 # Load models
@@ -16,7 +17,7 @@ emotion_pipeline = pipeline("text-classification", model="nateraw/bert-base-unca
 nlp = spacy.load("en_core_web_sm")
 
 
-
+app.include_router(emotions_router)
 
 class ReplayRequest(BaseModel):
     user_text: str

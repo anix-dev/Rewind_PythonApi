@@ -1,0 +1,1548 @@
+[
+  {
+    "feeling": "Happy",
+    "description": "A state of joy, satisfaction, or positive well-being, often associated with feelings of pleasure and fulfillment.",
+    "intensity": 4,
+    "synonyms": ["Joyful", "Elated", "Cheerful"],
+    "antonyms": ["Sad", "Miserable", "Depressed"],
+    "example_scenario": "Receiving a promotion at work after months of hard effort.",
+    "physical_sensations": [
+      "Warmth in the chest",
+      "Smiling",
+      "Lightness in the body"
+    ],
+    "color": "Yellow",
+    "category": "Positive",
+    "secondary": [
+      {
+        "feeling": "Playful",
+        "description": "Feeling lighthearted and inclined to engage in fun or mischievous activities.",
+        "intensity": 3,
+        "synonyms": ["Fun-loving", "Whimsical", "Jovial"],
+        "antonyms": ["Serious", "Stern", "Rigid"],
+        "example_scenario": "Teasing a friend during a lighthearted game night.",
+        "physical_sensations": [
+          "Giggles",
+          "Bouncing energy",
+          "Relaxed posture"
+        ],
+        "category": "Positive",
+        "tertiary": [
+          {
+            "feeling": "Aroused",
+            "description": "Experiencing excitement or eagerness, often with a sense of heightened energy.",
+            "intensity": 4,
+            "synonyms": ["Excited", "Eager", "Thrilled"],
+            "antonyms": ["Bored", "Apathetic", "Disinterested"],
+            "example_scenario": "Feeling a rush before going on a roller coaster.",
+            "physical_sensations": [
+              "Increased heart rate",
+              "Wide eyes",
+              "Tingling sensation"
+            ],
+            "category": "Positive"
+          },
+          {
+            "feeling": "Cheeky",
+            "description": "Being playfully bold or impudent, often in a charming or teasing way.",
+            "intensity": 2,
+            "synonyms": ["Sassy", "Impish", "Mischievous"],
+            "antonyms": ["Polite", "Reserved", "Formal"],
+            "example_scenario": "Winking at a friend after making a teasing remark.",
+            "physical_sensations": [
+              "Smirking",
+              "Playful energy",
+              "Light blushing"
+            ],
+            "category": "Positive"
+          }
+        ]
+      },
+      {
+        "feeling": "Content",
+        "description": "A state of calm satisfaction and peace with one's circumstances.",
+        "intensity": 3,
+        "synonyms": ["Satisfied", "At ease", "Fulfilled"],
+        "antonyms": ["Restless", "Dissatisfied", "Uneasy"],
+        "example_scenario": "Sitting by a fireplace with a good book on a rainy day.",
+        "physical_sensations": ["Relaxed muscles", "Soft breathing", "Warmth"],
+        "category": "Positive",
+        "tertiary": [
+          {
+            "feeling": "Free",
+            "description": "Feeling unburdened and liberated from constraints or worries.",
+            "intensity": 4,
+            "synonyms": ["Liberated", "Unrestrained", "Carefree"],
+            "antonyms": ["Trapped", "Burdened", "Restricted"],
+            "example_scenario": "Running through an open field with no responsibilities for the day.",
+            "physical_sensations": [
+              "Lightness in the body",
+              "Deep breaths",
+              "Wide smile"
+            ],
+            "category": "Positive"
+          },
+          {
+            "feeling": "Joyful",
+            "description": "Experiencing intense happiness and delight, often with a sense of elation.",
+            "intensity": 5,
+            "synonyms": ["Ecstatic", "Overjoyed", "Delighted"],
+            "antonyms": ["Miserable", "Sorrowful", "Depressed"],
+            "example_scenario": "Celebrating a child's first birthday with family.",
+            "physical_sensations": [
+              "Laughing",
+              "Tears of joy",
+              "Bouncing energy"
+            ],
+            "category": "Positive"
+          }
+        ]
+      },
+      {
+        "feeling": "Interested",
+        "description": "Feeling curious or engaged, with a desire to learn or explore more.",
+        "intensity": 3,
+        "synonyms": ["Engaged", "Fascinated", "Intrigued"],
+        "antonyms": ["Bored", "Disinterested", "Apathetic"],
+        "example_scenario": "Listening intently to a lecture on a favorite subject.",
+        "physical_sensations": [
+          "Leaning forward",
+          "Focused gaze",
+          "Slight smile"
+        ],
+        "category": "Positive",
+        "tertiary": [
+          {
+            "feeling": "Curious",
+            "description": "Having a strong desire to know or learn something new.",
+            "intensity": 3,
+            "synonyms": ["Inquisitive", "Wondering", "Eager"],
+            "antonyms": ["Indifferent", "Unconcerned", "Disinterested"],
+            "example_scenario": "Exploring a new city and wondering about its history.",
+            "physical_sensations": [
+              "Raised eyebrows",
+              "Head tilting",
+              "Engaged posture"
+            ],
+            "category": "Positive"
+          },
+          {
+            "feeling": "Inquisitive",
+            "description": "Being eager to investigate or ask questions, often showing a probing nature.",
+            "intensity": 4,
+            "synonyms": ["Questioning", "Probing", "Curious"],
+            "antonyms": ["Apathetic", "Uncurious", "Passive"],
+            "example_scenario": "Asking a scientist detailed questions about their research.",
+            "physical_sensations": [
+              "Furrowed brow",
+              "Nodding",
+              "Focused attention"
+            ],
+            "category": "Positive"
+          }
+        ]
+      },
+      {
+        "feeling": "Proud",
+        "description": "Feeling a deep sense of satisfaction or achievement, often tied to personal or collective success.",
+        "intensity": 4,
+        "synonyms": ["Satisfied", "Accomplished", "Pleased"],
+        "antonyms": ["Ashamed", "Disappointed", "Embarrassed"],
+        "example_scenario": "Watching a child graduate after years of support.",
+        "physical_sensations": ["Chest puffed out", "Warm glow", "Big smile"],
+        "category": "Positive",
+        "tertiary": [
+          {
+            "feeling": "Successful",
+            "description": "Feeling accomplished after achieving a goal or receiving recognition.",
+            "intensity": 5,
+            "synonyms": ["Triumphant", "Victorious", "Achieved"],
+            "antonyms": ["Failed", "Defeated", "Unsuccessful"],
+            "example_scenario": "Winning a competition after months of training.",
+            "physical_sensations": [
+              "Upright posture",
+              "Glowing smile",
+              "Energized feeling"
+            ],
+            "category": "Positive"
+          },
+          {
+            "feeling": "Confident",
+            "description": "Having a strong belief in one's abilities or worth, often with a sense of self-assurance.",
+            "intensity": 4,
+            "synonyms": ["Assured", "Self-assured", "Bold"],
+            "antonyms": ["Insecure", "Doubtful", "Uncertain"],
+            "example_scenario": "Giving a presentation with ease and poise.",
+            "physical_sensations": [
+              "Relaxed shoulders",
+              "Steady voice",
+              "Firm handshake"
+            ],
+            "category": "Positive"
+          }
+        ]
+      },
+      {
+        "feeling": "Accepted",
+        "description": "Feeling recognized and valued by others, often leading to a sense of belonging.",
+        "intensity": 4,
+        "synonyms": ["Welcomed", "Included", "Appreciated"],
+        "antonyms": ["Rejected", "Excluded", "Ignored"],
+        "example_scenario": "Being warmly welcomed into a new community group.",
+        "physical_sensations": [
+          "Relaxed smile",
+          "Warmth in the chest",
+          "Calm breathing"
+        ],
+        "category": "Positive",
+        "tertiary": [
+          {
+            "feeling": "Respected",
+            "description": "Being admired or held in high regard by others.",
+            "intensity": 4,
+            "synonyms": ["Admired", "Honored", "Esteemed"],
+            "antonyms": ["Disrespected", "Belittled", "Disregarded"],
+            "example_scenario": "Being praised by a mentor for a job well done.",
+            "physical_sensations": [
+              "Upright posture",
+              "Warm feeling",
+              "Soft smile"
+            ],
+            "category": "Positive"
+          },
+          {
+            "feeling": "Valued",
+            "description": "Feeling appreciated and important to others, often in a personal or professional context.",
+            "intensity": 4,
+            "synonyms": ["Cherished", "Prized", "Appreciated"],
+            "antonyms": ["Unappreciated", "Undervalued", "Overlooked"],
+            "example_scenario": "Being thanked by a team for contributions to a project.",
+            "physical_sensations": [
+              "Warm glow",
+              "Relaxed demeanor",
+              "Gentle smile"
+            ],
+            "category": "Positive"
+          }
+        ]
+      },
+      {
+        "feeling": "Powerful",
+        "description": "Feeling strong, capable, and in control, often with a sense of influence or impact.",
+        "intensity": 5,
+        "synonyms": ["Strong", "Empowered", "Dominant"],
+        "antonyms": ["Weak", "Powerless", "Helpless"],
+        "example_scenario": "Leading a team to successfully complete a challenging project.",
+        "physical_sensations": [
+          "Strong posture",
+          "Firm grip",
+          "Energized feeling"
+        ],
+        "category": "Positive",
+        "tertiary": [
+          {
+            "feeling": "Courageous",
+            "description": "Showing bravery and the willingness to face challenges or fears.",
+            "intensity": 5,
+            "synonyms": ["Brave", "Fearless", "Valiant"],
+            "antonyms": ["Cowardly", "Timid", "Fearful"],
+            "example_scenario": "Standing up for a friend in a difficult situation.",
+            "physical_sensations": [
+              "Steady heartbeat",
+              "Firm stance",
+              "Focused gaze"
+            ],
+            "category": "Positive"
+          },
+          {
+            "feeling": "Creative",
+            "description": "Feeling inspired and capable of producing original ideas or solutions.",
+            "intensity": 4,
+            "synonyms": ["Innovative", "Imaginative", "Inventive"],
+            "antonyms": ["Uninspired", "Stagnant", "Conventional"],
+            "example_scenario": "Designing a unique piece of art that receives praise.",
+            "physical_sensations": [
+              "Flow state",
+              "Light excitement",
+              "Focused energy"
+            ],
+            "category": "Positive"
+          }
+        ]
+      },
+      {
+        "feeling": "Peaceful",
+        "description": "A state of tranquility and calm, often associated with inner harmony.",
+        "intensity": 3,
+        "synonyms": ["Calm", "Serene", "Tranquil"],
+        "antonyms": ["Chaotic", "Restless", "Anxious"],
+        "example_scenario": "Meditating by a quiet lake at sunrise.",
+        "physical_sensations": [
+          "Slow breathing",
+          "Relaxed muscles",
+          "Soft smile"
+        ],
+        "category": "Positive",
+        "tertiary": [
+          {
+            "feeling": "Loving",
+            "description": "Experiencing deep affection and warmth toward others.",
+            "intensity": 5,
+            "synonyms": ["Affectionate", "Caring", "Warmhearted"],
+            "antonyms": ["Hateful", "Cold", "Distant"],
+            "example_scenario": "Hugging a loved one after a long separation.",
+            "physical_sensations": [
+              "Warmth in the chest",
+              "Gentle touch",
+              "Tears of joy"
+            ],
+            "category": "Positive"
+          },
+          {
+            "feeling": "Thankful",
+            "description": "Feeling gratitude and appreciation for what one has or has experienced.",
+            "intensity": 4,
+            "synonyms": ["Grateful", "Appreciative", "Thankful"],
+            "antonyms": ["Ungrateful", "Resentful", "Dissatisfied"],
+            "example_scenario": "Writing a thank-you note to a friend for their support.",
+            "physical_sensations": ["Warm glow", "Soft smile", "Calm demeanor"],
+            "category": "Positive"
+          }
+        ]
+      },
+      {
+        "feeling": "Trusting",
+        "description": "Having confidence in others and feeling secure in relationships or situations.",
+        "intensity": 4,
+        "synonyms": ["Confident", "Secure", "Reliant"],
+        "antonyms": ["Distrustful", "Suspicious", "Skeptical"],
+        "example_scenario": "Sharing a personal secret with a close friend.",
+        "physical_sensations": [
+          "Relaxed posture",
+          "Open demeanor",
+          "Soft gaze"
+        ],
+        "category": "Positive",
+        "tertiary": [
+          {
+            "feeling": "Sensitive",
+            "description": "Being emotionally attuned and empathetic, often with heightened awareness of others' feelings.",
+            "intensity": 3,
+            "synonyms": ["Empathetic", "Compassionate", "Tender"],
+            "antonyms": ["Insensitive", "Cold", "Detached"],
+            "example_scenario": "Comforting a friend who is upset about a breakup.",
+            "physical_sensations": ["Soft touch", "Warm eyes", "Gentle voice"],
+            "category": "Positive"
+          },
+          {
+            "feeling": "Intimate",
+            "description": "Feeling closely connected and emotionally open with someone, often in a personal relationship.",
+            "intensity": 5,
+            "synonyms": ["Close", "Connected", "Bonded"],
+            "antonyms": ["Distant", "Detached", "Aloof"],
+            "example_scenario": "Sharing a heartfelt conversation with a partner late at night.",
+            "physical_sensations": [
+              "Warmth in the chest",
+              "Soft touch",
+              "Deep connection"
+            ],
+            "category": "Positive"
+          }
+        ]
+      },
+      {
+        "feeling": "Optimistic",
+        "description": "Having a hopeful and positive outlook on the future, expecting good outcomes.",
+        "intensity": 4,
+        "synonyms": ["Hopeful", "Positive", "Upbeat"],
+        "antonyms": ["Pessimistic", "Hopeless", "Gloomy"],
+        "example_scenario": "Looking forward to a new job opportunity with excitement.",
+        "physical_sensations": ["Light energy", "Bright eyes", "Soft smile"],
+        "category": "Positive",
+        "tertiary": [
+          {
+            "feeling": "Hopeful",
+            "description": "Feeling expectant and positive about future possibilities.",
+            "intensity": 4,
+            "synonyms": ["Optimistic", "Encouraged", "Buoyant"],
+            "antonyms": ["Hopeless", "Despairing", "Pessimistic"],
+            "example_scenario": "Waiting for good news about a college application.",
+            "physical_sensations": [
+              "Light fluttering in the chest",
+              "Soft smile",
+              "Bright outlook"
+            ],
+            "category": "Positive"
+          },
+          {
+            "feeling": "Inspired",
+            "description": "Being motivated or uplifted by an idea, person, or experience.",
+            "intensity": 5,
+            "synonyms": ["Motivated", "Uplifted", "Energized"],
+            "antonyms": ["Uninspired", "Demotivated", "Flat"],
+            "example_scenario": "Feeling motivated after watching an inspiring documentary.",
+            "physical_sensations": [
+              "Energized body",
+              "Focused mind",
+              "Bright eyes"
+            ],
+            "category": "Positive"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "feeling": "Sad",
+    "description": "A state of unhappiness or sorrow, often associated with loss, disappointment, or emotional pain.",
+    "intensity": 4,
+    "synonyms": ["Sorrowful", "Mournful", "Unhappy"],
+    "antonyms": ["Happy", "Joyful", "Elated"],
+    "example_scenario": "Missing a loved one who moved far away.",
+    "physical_sensations": ["Tears", "Heavy chest", "Slumped posture"],
+    "color": "Blue",
+    "category": "Negative",
+    "secondary": [
+      {
+        "feeling": "Lonely",
+        "description": "Feeling isolated or disconnected from others, often with a sense of longing for connection.",
+        "intensity": 4,
+        "synonyms": ["Alone", "Isolated", "Forlorn"],
+        "antonyms": ["Connected", "Included", "Sociable"],
+        "example_scenario": "Spending a holiday alone while others are with family.",
+        "physical_sensations": ["Ache in the chest", "Tears", "Quiet demeanor"],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Isolated",
+            "description": "Feeling cut off or detached from others, either physically or emotionally.",
+            "intensity": 5,
+            "synonyms": ["Separated", "Detached", "Alone"],
+            "antonyms": ["Connected", "Engaged", "Included"],
+            "example_scenario": "Living in a new city with no friends or family nearby.",
+            "physical_sensations": ["Cold feeling", "Silence", "Heavy limbs"],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Abandoned",
+            "description": "Feeling deserted or left behind, often with a sense of rejection.",
+            "intensity": 5,
+            "synonyms": ["Forsaken", "Deserted", "Neglected"],
+            "antonyms": ["Supported", "Cherished", "Included"],
+            "example_scenario": "Being left by a partner without explanation.",
+            "physical_sensations": [
+              "Tightness in the chest",
+              "Tears",
+              "Coldness"
+            ],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Vulnerable",
+        "description": "Feeling exposed or defenseless, often with a sense of emotional fragility.",
+        "intensity": 4,
+        "synonyms": ["Fragile", "Exposed", "Sensitive"],
+        "antonyms": ["Secure", "Protected", "Strong"],
+        "example_scenario": "Sharing a personal insecurity with someone for the first time.",
+        "physical_sensations": [
+          "Trembling",
+          "Racing heart",
+          "Shallow breathing"
+        ],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Victimized",
+            "description": "Feeling unfairly treated or harmed, often with a sense of powerlessness.",
+            "intensity": 5,
+            "synonyms": ["Persecuted", "Oppressed", "Harmed"],
+            "antonyms": ["Empowered", "Protected", "Safe"],
+            "example_scenario": "Being unfairly blamed for a mistake at work.",
+            "physical_sensations": [
+              "Tightness in the throat",
+              "Tears",
+              "Shaking"
+            ],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Fragile",
+            "description": "Feeling emotionally delicate and easily hurt or overwhelmed.",
+            "intensity": 4,
+            "synonyms": ["Delicate", "Breakable", "Weak"],
+            "antonyms": ["Resilient", "Strong", "Tough"],
+            "example_scenario": "Feeling overwhelmed after receiving harsh criticism.",
+            "physical_sensations": ["Trembling hands", "Tears", "Soft voice"],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Despair",
+        "description": "A deep sense of hopelessness and loss of faith in improvement or relief.",
+        "intensity": 5,
+        "synonyms": ["Hopelessness", "Despondency", "Anguish"],
+        "antonyms": ["Hope", "Optimism", "Faith"],
+        "example_scenario": "Losing a loved one and feeling unable to move forward.",
+        "physical_sensations": ["Heavy chest", "Tears", "Slumped posture"],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Grieving",
+            "description": "Experiencing deep sorrow, often due to a significant loss such as the death of a loved one.",
+            "intensity": 5,
+            "synonyms": ["Mourning", "Sorrowing", "Lamenting"],
+            "antonyms": ["Celebrating", "Rejoicing", "Joyful"],
+            "example_scenario": "Attending a funeral for a close family member.",
+            "physical_sensations": [
+              "Tears",
+              "Ache in the chest",
+              "Slow movements"
+            ],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Powerless",
+            "description": "Feeling unable to influence or change a situation, often leading to helplessness.",
+            "intensity": 5,
+            "synonyms": ["Helpless", "Impotent", "Weak"],
+            "antonyms": ["Powerful", "Capable", "In control"],
+            "example_scenario": "Watching a loved one suffer without being able to help.",
+            "physical_sensations": [
+              "Slumped shoulders",
+              "Tears",
+              "Heavy limbs"
+            ],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Guilty",
+        "description": "Feeling responsible for a wrongdoing or mistake, often accompanied by remorse.",
+        "intensity": 4,
+        "synonyms": ["Remorseful", "Regretful", "Culpable"],
+        "antonyms": ["Innocent", "Unburdened", "Righteous"],
+        "example_scenario": "Realizing you hurt a friend's feelings with a thoughtless comment.",
+        "physical_sensations": [
+          "Knot in the stomach",
+          "Tense shoulders",
+          "Frowning"
+        ],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Ashamed",
+            "description": "Feeling embarrassed or humiliated due to one's actions or perceived shortcomings.",
+            "intensity": 4,
+            "synonyms": ["Embarrassed", "Humiliated", "Disgraced"],
+            "antonyms": ["Proud", "Confident", "Honored"],
+            "example_scenario": "Being caught lying to a close friend.",
+            "physical_sensations": [
+              "Blushing",
+              "Avoiding eye contact",
+              "Tense posture"
+            ],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Remorseful",
+            "description": "Feeling deep regret and sorrow for past actions, often with a desire to make amends.",
+            "intensity": 5,
+            "synonyms": ["Regretful", "Penitent", "Sorry"],
+            "antonyms": ["Unapologetic", "Indifferent", "Unconcerned"],
+            "example_scenario": "Apologizing for missing an important event for a loved one.",
+            "physical_sensations": [
+              "Tightness in the chest",
+              "Tears",
+              "Soft voice"
+            ],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Depressed",
+        "description": "A state of prolonged sadness and low energy, often with feelings of emptiness.",
+        "intensity": 5,
+        "synonyms": ["Melancholy", "Downcast", "Despondent"],
+        "antonyms": ["Cheerful", "Upbeat", "Joyful"],
+        "example_scenario": "Feeling unmotivated and sad for weeks after a major setback.",
+        "physical_sensations": ["Heavy body", "Tears", "Lack of energy"],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Empty",
+            "description": "Feeling a lack of purpose, emotion, or fulfillment, often with a sense of hollowness.",
+            "intensity": 5,
+            "synonyms": ["Hollow", "Vacant", "Void"],
+            "antonyms": ["Fulfilled", "Whole", "Content"],
+            "example_scenario": "Feeling disconnected after losing a sense of purpose in life.",
+            "physical_sensations": ["Cold feeling", "Tears", "Slow movements"],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Inferior",
+            "description": "Feeling less capable or worthy than others, often tied to low self-esteem.",
+            "intensity": 4,
+            "synonyms": ["Inadequate", "Lesser", "Unworthy"],
+            "antonyms": ["Superior", "Confident", "Worthy"],
+            "example_scenario": "Comparing oneself unfavorably to a successful sibling.",
+            "physical_sensations": [
+              "Slumped posture",
+              "Avoiding eye contact",
+              "Tense jaw"
+            ],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Hurt",
+        "description": "Feeling emotional pain or distress, often due to rejection or betrayal.",
+        "intensity": 4,
+        "synonyms": ["Wounded", "Pained", "Upset"],
+        "antonyms": ["Healed", "Comforted", "Happy"],
+        "example_scenario": "Being ignored by a close friend during a gathering.",
+        "physical_sensations": ["Tightness in the chest", "Tears", "Frowning"],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Embarrassed",
+            "description": "Feeling self-conscious or ashamed, often due to a perceived social misstep.",
+            "intensity": 3,
+            "synonyms": ["Ashamed", "Humiliated", "Awkward"],
+            "antonyms": ["Confident", "Proud", "Assured"],
+            "example_scenario": "Tripping in front of a crowd at an event.",
+            "physical_sensations": [
+              "Blushing",
+              "Avoiding eye contact",
+              "Racing heart"
+            ],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Disappointed",
+            "description": "Feeling let down or unsatisfied when expectations are not met.",
+            "intensity": 4,
+            "synonyms": ["Let down", "Dissatisfied", "Disheartened"],
+            "antonyms": ["Satisfied", "Fulfilled", "Pleased"],
+            "example_scenario": "Not getting the job you were hoping for.",
+            "physical_sensations": [
+              "Heavy sigh",
+              "Frowning",
+              "Slumped shoulders"
+            ],
+            "category": "Negative"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "feeling": "Angry",
+    "description": "A strong feeling of displeasure or hostility, often triggered by perceived wrongs or frustrations.",
+    "intensity": 5,
+    "synonyms": ["Mad", "Furious", "Irate"],
+    "antonyms": ["Calm", "Peaceful", "Content"],
+    "example_scenario": "Discovering someone spread false rumors about you.",
+    "physical_sensations": ["Racing heart", "Tense muscles", "Clenched fists"],
+    "color": "Red",
+    "category": "Negative",
+    "secondary": [
+      {
+        "feeling": "Let down",
+        "description": "Feeling betrayed or disappointed by someone or something that failed to meet expectations.",
+        "intensity": 4,
+        "synonyms": ["Betrayed", "Disappointed", "Deceived"],
+        "antonyms": ["Supported", "Fulfilled", "Trusted"],
+        "example_scenario": "A friend breaking a promise to help with an important task.",
+        "physical_sensations": [
+          "Tightness in the chest",
+          "Frowning",
+          "Tense shoulders"
+        ],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Betrayed",
+            "description": "Feeling deeply hurt by disloyalty or a breach of trust.",
+            "intensity": 5,
+            "synonyms": ["Deceived", "Backstabbed", "Disloyal"],
+            "antonyms": ["Trusted", "Loyal", "Supported"],
+            "example_scenario": "Finding out a partner was unfaithful.",
+            "physical_sensations": ["Racing heart", "Tears", "Clenched jaw"],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Resentful",
+            "description": "Harboring bitterness or anger due to perceived unfair treatment.",
+            "intensity": 4,
+            "synonyms": ["Bitter", "Grudgeful", "Spiteful"],
+            "antonyms": ["Forgiving", "Understanding", "Peaceful"],
+            "example_scenario": "Feeling overlooked for a promotion given to a less qualified colleague.",
+            "physical_sensations": ["Tense jaw", "Frowning", "Cold demeanor"],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Humiliated",
+        "description": "Feeling degraded or shamed, often due to public embarrassment or disrespect.",
+        "intensity": 5,
+        "synonyms": ["Shamed", "Mortified", "Degraded"],
+        "antonyms": ["Respected", "Honored", "Dignified"],
+        "example_scenario": "Being publicly criticized by a boss in front of colleagues.",
+        "physical_sensations": [
+          "Blushing",
+          "Racing heart",
+          "Avoiding eye contact"
+        ],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Disrespected",
+            "description": "Feeling insulted or undervalued by others' actions or words.",
+            "intensity": 4,
+            "synonyms": ["Insulted", "Belittled", "Disregarded"],
+            "antonyms": ["Respected", "Valued", "Appreciated"],
+            "example_scenario": "Being interrupted and ignored during a meeting.",
+            "physical_sensations": [
+              "Tense posture",
+              "Frowning",
+              "Clenched fists"
+            ],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Ridiculed",
+            "description": "Being mocked or made fun of, often leading to feelings of shame.",
+            "intensity": 5,
+            "synonyms": ["Mocked", "Teased", "Derided"],
+            "antonyms": ["Praised", "Admired", "Respected"],
+            "example_scenario": "Being laughed at for a mistake during a presentation.",
+            "physical_sensations": ["Blushing", "Tears", "Shrinking posture"],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Bitter",
+        "description": "Feeling deep resentment or cynicism, often due to past grievances.",
+        "intensity": 4,
+        "synonyms": ["Resentful", "Cynical", "Sour"],
+        "antonyms": ["Forgiving", "Optimistic", "Sweet"],
+        "example_scenario": "Holding a grudge against a friend who wronged you years ago.",
+        "physical_sensations": ["Tense jaw", "Cold demeanor", "Frowning"],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Indignant",
+            "description": "Feeling righteous anger or annoyance at perceived injustice.",
+            "intensity": 4,
+            "synonyms": ["Outraged", "Offended", "Angry"],
+            "antonyms": ["Accepting", "Calm", "Unbothered"],
+            "example_scenario": "Reacting to unfair treatment of a colleague at work.",
+            "physical_sensations": [
+              "Raised voice",
+              "Tense posture",
+              "Flushed face"
+            ],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Violated",
+            "description": "Feeling that one's rights or boundaries have been unjustly crossed.",
+            "intensity": 5,
+            "synonyms": ["Infringed", "Invaded", "Abused"],
+            "antonyms": ["Respected", "Protected", "Safe"],
+            "example_scenario": "Discovering someone went through your personal belongings without permission.",
+            "physical_sensations": [
+              "Racing heart",
+              "Tense muscles",
+              "Cold sweat"
+            ],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Mad",
+        "description": "A state of intense anger or rage, often with a desire to confront the source of irritation.",
+        "intensity": 5,
+        "synonyms": ["Furious", "Enraged", "Irate"],
+        "antonyms": ["Calm", "Peaceful", "Content"],
+        "example_scenario": "Yelling after someone cuts you off in traffic.",
+        "physical_sensations": [
+          "Racing heart",
+          "Clenched fists",
+          "Raised voice"
+        ],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Furious",
+            "description": "Experiencing extreme anger, often with a loss of control or intense emotional heat.",
+            "intensity": 5,
+            "synonyms": ["Enraged", "Incensed", "Livid"],
+            "antonyms": ["Calm", "Relaxed", "Peaceful"],
+            "example_scenario": "Screaming after being cheated in a deal.",
+            "physical_sensations": ["Flushed face", "Trembling", "Loud voice"],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Jealous",
+            "description": "Feeling anger or resentment due to envy of someone else's success or possessions.",
+            "intensity": 4,
+            "synonyms": ["Envious", "Covetous", "Resentful"],
+            "antonyms": ["Content", "Satisfied", "Grateful"],
+            "example_scenario": "Feeling upset seeing a friend get the promotion you wanted.",
+            "physical_sensations": ["Tense jaw", "Frowning", "Cold demeanor"],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Aggressive",
+        "description": "Feeling ready to confront or attack, often with hostility or assertiveness.",
+        "intensity": 5,
+        "synonyms": ["Hostile", "Combative", "Belligerent"],
+        "antonyms": ["Peaceful", "Passive", "Calm"],
+        "example_scenario": "Getting into a heated argument with a coworker.",
+        "physical_sensations": [
+          "Tense muscles",
+          "Raised voice",
+          "Clenched fists"
+        ],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Provoked",
+            "description": "Feeling incited to anger or action by an external trigger.",
+            "intensity": 4,
+            "synonyms": ["Triggered", "Incited", "Riled"],
+            "antonyms": ["Calm", "Unbothered", "Peaceful"],
+            "example_scenario": "Reacting angrily to a taunt during a sports game.",
+            "physical_sensations": [
+              "Racing heart",
+              "Tense posture",
+              "Flushed face"
+            ],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Hostile",
+            "description": "Feeling antagonistic or unfriendly, often with a desire to oppose or harm.",
+            "intensity": 5,
+            "synonyms": ["Aggressive", "Unfriendly", "Combative"],
+            "antonyms": ["Friendly", "Welcoming", "Peaceful"],
+            "example_scenario": "Giving someone a cold glare after a disagreement.",
+            "physical_sensations": ["Cold stare", "Tense body", "Clenched jaw"],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Frustrated",
+        "description": "Feeling irritated or blocked in achieving a goal, often leading to impatience.",
+        "intensity": 4,
+        "synonyms": ["Irritated", "Annoyed", "Exasperated"],
+        "antonyms": ["Satisfied", "Calm", "Patient"],
+        "example_scenario": "Struggling to solve a difficult puzzle after many attempts.",
+        "physical_sensations": ["Tense shoulders", "Sighing", "Furrowed brow"],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Infuriated",
+            "description": "Feeling extremely angry, often to the point of rage, due to a specific trigger.",
+            "intensity": 5,
+            "synonyms": ["Enraged", "Furious", "Livid"],
+            "antonyms": ["Calm", "Peaceful", "Content"],
+            "example_scenario": "Slamming a door after a heated argument.",
+            "physical_sensations": [
+              "Racing heart",
+              "Trembling",
+              "Flushed face"
+            ],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Annoyed",
+            "description": "Feeling mildly irritated or bothered by a persistent issue or behavior.",
+            "intensity": 3,
+            "synonyms": ["Irritated", "Bothered", "Peeved"],
+            "antonyms": ["Pleased", "Content", "Calm"],
+            "example_scenario": "Hearing a loud noise while trying to focus on work.",
+            "physical_sensations": ["Furrowed brow", "Sighing", "Tense jaw"],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Distant",
+        "description": "Feeling emotionally detached or withdrawn, often as a response to anger or hurt.",
+        "intensity": 3,
+        "synonyms": ["Detached", "Aloof", "Withdrawn"],
+        "antonyms": ["Connected", "Engaged", "Warm"],
+        "example_scenario": "Avoiding a friend after a disagreement.",
+        "physical_sensations": [
+          "Cold demeanor",
+          "Avoiding eye contact",
+          "Crossed arms"
+        ],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Withdrawn",
+            "description": "Pulling back emotionally or socially, often to avoid conflict or pain.",
+            "intensity": 4,
+            "synonyms": ["Detached", "Isolated", "Reserved"],
+            "antonyms": ["Engaged", "Open", "Sociable"],
+            "example_scenario": "Staying quiet and avoiding interaction at a social event.",
+            "physical_sensations": [
+              "Closed posture",
+              "Soft voice",
+              "Avoiding eye contact"
+            ],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Numb",
+            "description": "Feeling emotionally disconnected or unresponsive, often as a coping mechanism.",
+            "intensity": 4,
+            "synonyms": ["Unfeeling", "Detached", "Emotionless"],
+            "antonyms": ["Sensitive", "Engaged", "Emotional"],
+            "example_scenario": "Feeling nothing after a traumatic event.",
+            "physical_sensations": [
+              "Blank expression",
+              "Slow movements",
+              "Cold feeling"
+            ],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Critical",
+        "description": "Feeling inclined to judge or disapprove, often with a focus on flaws or shortcomings.",
+        "intensity": 3,
+        "synonyms": ["Judgmental", "Disapproving", "Skeptical"],
+        "antonyms": ["Accepting", "Approving", "Supportive"],
+        "example_scenario": "Pointing out flaws in a colleague's work during a meeting.",
+        "physical_sensations": [
+          "Furrowed brow",
+          "Crossed arms",
+          "Stern expression"
+        ],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Skeptical",
+            "description": "Feeling doubtful or questioning, often with a lack of trust in others' intentions.",
+            "intensity": 3,
+            "synonyms": ["Doubtful", "Suspicious", "Uncertain"],
+            "antonyms": ["Trusting", "Believing", "Confident"],
+            "example_scenario": "Questioning the motives of a new coworker.",
+            "physical_sensations": [
+              "Raised eyebrow",
+              "Crossed arms",
+              "Slight frown"
+            ],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Dismissive",
+            "description": "Rejecting or disregarding something as unimportant or unworthy of attention.",
+            "intensity": 3,
+            "synonyms": ["Disregarding", "Indifferent", "Uninterested"],
+            "antonyms": ["Attentive", "Interested", "Engaged"],
+            "example_scenario": "Brushing off a suggestion without consideration.",
+            "physical_sensations": ["Eye rolling", "Shrugging", "Cold tone"],
+            "category": "Negative"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "feeling": "Fearful",
+    "description": "A state of anxiety or dread, often triggered by perceived threats or uncertainty.",
+    "intensity": 4,
+    "synonyms": ["Afraid", "Scared", "Anxious"],
+    "antonyms": ["Fearless", "Calm", "Confident"],
+    "example_scenario": "Hearing a loud noise in the middle of the night.",
+    "physical_sensations": ["Racing heart", "Shallow breathing", "Trembling"],
+    "color": "Light Yellow",
+    "category": "Negative",
+    "secondary": [
+      {
+        "feeling": "Scared",
+        "description": "Feeling afraid or frightened, often with a sense of impending danger.",
+        "intensity": 5,
+        "synonyms": ["Frightened", "Terrified", "Alarmed"],
+        "antonyms": ["Fearless", "Brave", "Calm"],
+        "example_scenario": "Seeing a spider crawling on your arm.",
+        "physical_sensations": ["Racing heart", "Wide eyes", "Trembling"],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Helpless",
+            "description": "Feeling unable to protect oneself or manage a threatening situation.",
+            "intensity": 5,
+            "synonyms": ["Powerless", "Defenseless", "Weak"],
+            "antonyms": ["Capable", "Empowered", "Strong"],
+            "example_scenario": "Being stuck in a dangerous situation with no way out.",
+            "physical_sensations": ["Trembling", "Tears", "Shallow breathing"],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Frightened",
+            "description": "Experiencing sudden fear or alarm, often due to a specific threat.",
+            "intensity": 5,
+            "synonyms": ["Scared", "Terrified", "Alarmed"],
+            "antonyms": ["Calm", "Brave", "Fearless"],
+            "example_scenario": "Hearing a loud bang during a storm.",
+            "physical_sensations": ["Jumping", "Racing heart", "Wide eyes"],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Anxious",
+        "description": "Feeling nervous or worried, often with a sense of unease about the future.",
+        "intensity": 4,
+        "synonyms": ["Nervous", "Worried", "Uneasy"],
+        "antonyms": ["Calm", "Relaxed", "Confident"],
+        "example_scenario": "Waiting for the results of a medical test.",
+        "physical_sensations": ["Racing heart", "Sweaty palms", "Restlessness"],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Overwhelmed",
+            "description": "Feeling unable to cope with excessive demands or pressure.",
+            "intensity": 5,
+            "synonyms": ["Swamped", "Overloaded", "Stressed"],
+            "antonyms": ["Calm", "Managed", "Relaxed"],
+            "example_scenario": "Facing multiple deadlines at work with no support.",
+            "physical_sensations": [
+              "Racing thoughts",
+              "Tense muscles",
+              "Shallow breathing"
+            ],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Worried",
+            "description": "Feeling concerned or preoccupied about potential negative outcomes.",
+            "intensity": 4,
+            "synonyms": ["Concerned", "Anxious", "Nervous"],
+            "antonyms": ["Carefree", "Relaxed", "Unconcerned"],
+            "example_scenario": "Thinking about a loved one who hasn’t called in a while.",
+            "physical_sensations": [
+              "Furrowed brow",
+              "Restless pacing",
+              "Tense shoulders"
+            ],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Insecure",
+        "description": "Feeling uncertain or lacking confidence, often with doubts about one's worth or abilities.",
+        "intensity": 4,
+        "synonyms": ["Uncertain", "Doubtful", "Unsure"],
+        "antonyms": ["Confident", "Secure", "Assured"],
+        "example_scenario": "Feeling nervous about speaking in front of a large group.",
+        "physical_sensations": [
+          "Trembling voice",
+          "Avoiding eye contact",
+          "Tense posture"
+        ],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Inadequate",
+            "description": "Feeling insufficient or not good enough to meet expectations.",
+            "intensity": 4,
+            "synonyms": ["Insufficient", "Lacking", "Unworthy"],
+            "antonyms": ["Adequate", "Capable", "Enough"],
+            "example_scenario": "Feeling unprepared for a challenging exam.",
+            "physical_sensations": [
+              "Tense shoulders",
+              "Frowning",
+              "Racing thoughts"
+            ],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Inferior",
+            "description": "Feeling less capable or worthy compared to others.",
+            "intensity": 4,
+            "synonyms": ["Lesser", "Subpar", "Unworthy"],
+            "antonyms": ["Superior", "Confident", "Worthy"],
+            "example_scenario": "Comparing your skills unfavorably to a colleague's.",
+            "physical_sensations": [
+              "Slumped posture",
+              "Avoiding eye contact",
+              "Tense jaw"
+            ],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Weak",
+        "description": "Feeling powerless or lacking strength, often with a sense of vulnerability.",
+        "intensity": 4,
+        "synonyms": ["Feeble", "Fragile", "Powerless"],
+        "antonyms": ["Strong", "Powerful", "Resilient"],
+        "example_scenario": "Feeling unable to stand up for yourself in a conflict.",
+        "physical_sensations": ["Trembling", "Slumped posture", "Soft voice"],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Worthless",
+            "description": "Feeling without value or significance, often tied to low self-esteem.",
+            "intensity": 5,
+            "synonyms": ["Useless", "Valueless", "Insignificant"],
+            "antonyms": ["Valuable", "Worthy", "Important"],
+            "example_scenario": "Feeling like your contributions at work don’t matter.",
+            "physical_sensations": ["Heavy chest", "Tears", "Slumped posture"],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Insignificant",
+            "description": "Feeling unimportant or negligible, often with a sense of being overlooked.",
+            "intensity": 4,
+            "synonyms": ["Trivial", "Negligible", "Unimportant"],
+            "antonyms": ["Significant", "Important", "Notable"],
+            "example_scenario": "Feeling ignored during a group discussion.",
+            "physical_sensations": [
+              "Shrinking posture",
+              "Soft voice",
+              "Tense jaw"
+            ],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Rejected",
+        "description": "Feeling unwanted or excluded, often leading to fear of further rejection.",
+        "intensity": 4,
+        "synonyms": ["Unwanted", "Excluded", "Dismissed"],
+        "antonyms": ["Accepted", "Included", "Welcomed"],
+        "example_scenario": "Not being invited to a close friend’s party.",
+        "physical_sensations": ["Tightness in the chest", "Tears", "Frowning"],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Excluded",
+            "description": "Feeling deliberately left out or ostracized by others.",
+            "intensity": 4,
+            "synonyms": ["Ostracized", "Left out", "Ignored"],
+            "antonyms": ["Included", "Welcomed", "Engaged"],
+            "example_scenario": "Not being invited to a team outing at work.",
+            "physical_sensations": ["Heavy chest", "Tears", "Cold demeanor"],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Persecuted",
+            "description": "Feeling unfairly targeted or harassed, often with a sense of being a victim.",
+            "intensity": 5,
+            "synonyms": ["Harassed", "Oppressed", "Victimized"],
+            "antonyms": ["Protected", "Supported", "Safe"],
+            "example_scenario": "Being unfairly singled out for criticism by a teacher.",
+            "physical_sensations": ["Racing heart", "Tense posture", "Tears"],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Threatened",
+        "description": "Feeling at risk or endangered, often with a sense of exposure to harm.",
+        "intensity": 5,
+        "synonyms": ["Endangered", "At risk", "Vulnerable"],
+        "antonyms": ["Safe", "Protected", "Secure"],
+        "example_scenario": "Walking alone in a dark alley at night.",
+        "physical_sensations": [
+          "Racing heart",
+          "Tense muscles",
+          "Hypervigilance"
+        ],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Nervous",
+            "description": "Feeling uneasy or apprehensive, often with physical symptoms like restlessness.",
+            "intensity": 4,
+            "synonyms": ["Anxious", "Uneasy", "Apprehensive"],
+            "antonyms": ["Calm", "Relaxed", "Confident"],
+            "example_scenario": "Waiting to speak in front of a large audience.",
+            "physical_sensations": [
+              "Sweaty palms",
+              "Racing heart",
+              "Trembling voice"
+            ],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Exposed",
+            "description": "Feeling unprotected or vulnerable to harm or judgment.",
+            "intensity": 4,
+            "synonyms": ["Vulnerable", "Unprotected", "Open"],
+            "antonyms": ["Protected", "Safe", "Shielded"],
+            "example_scenario": "Feeling judged while sharing a personal story in a group.",
+            "physical_sensations": [
+              "Racing heart",
+              "Tense posture",
+              "Avoiding eye contact"
+            ],
+            "category": "Negative"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "feeling": "Bad",
+    "description": "A general state of unease or dissatisfaction, often related to boredom, stress, or fatigue.",
+    "intensity": 3,
+    "synonyms": ["Unpleasant", "Negative", "Uncomfortable"],
+    "antonyms": ["Good", "Positive", "Comfortable"],
+    "example_scenario": "Feeling restless after a long, unproductive day.",
+    "physical_sensations": ["Tense shoulders", "Sighing", "Restlessness"],
+    "color": "Green",
+    "category": "Negative",
+    "secondary": [
+      {
+        "feeling": "Bored",
+        "description": "Feeling uninterested or disengaged, often due to a lack of stimulation.",
+        "intensity": 3,
+        "synonyms": ["Uninterested", "Disengaged", "Listless"],
+        "antonyms": ["Interested", "Engaged", "Excited"],
+        "example_scenario": "Sitting through a long, monotonous lecture.",
+        "physical_sensations": ["Yawning", "Fidgeting", "Blank stare"],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Apathetic",
+            "description": "Feeling indifferent or unmotivated, often with a lack of emotional investment.",
+            "intensity": 3,
+            "synonyms": ["Indifferent", "Unmotivated", "Unconcerned"],
+            "antonyms": ["Passionate", "Motivated", "Engaged"],
+            "example_scenario": "Not caring about the outcome of a group project.",
+            "physical_sensations": [
+              "Blank expression",
+              "Slouched posture",
+              "Slow movements"
+            ],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Indifferent",
+            "description": "Feeling neutral or uncaring, often with a lack of preference or concern.",
+            "intensity": 2,
+            "synonyms": ["Unconcerned", "Detached", "Apathetic"],
+            "antonyms": ["Concerned", "Interested", "Engaged"],
+            "example_scenario": "Not having an opinion on a heated debate.",
+            "physical_sensations": [
+              "Shrugging",
+              "Neutral expression",
+              "Relaxed posture"
+            ],
+            "category": "Neutral"
+          }
+        ]
+      },
+      {
+        "feeling": "Busy",
+        "description": "Feeling preoccupied or overworked, often with a sense of being stretched thin.",
+        "intensity": 4,
+        "synonyms": ["Overworked", "Preoccupied", "Swamped"],
+        "antonyms": ["Idle", "Relaxed", "Free"],
+        "example_scenario": "Juggling multiple tasks with tight deadlines.",
+        "physical_sensations": [
+          "Racing thoughts",
+          "Tense muscles",
+          "Shallow breathing"
+        ],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Pressured",
+            "description": "Feeling stressed or pushed to meet demands, often with a sense of urgency.",
+            "intensity": 4,
+            "synonyms": ["Stressed", "Overwhelmed", "Pushed"],
+            "antonyms": ["Relaxed", "Calm", "Unpressured"],
+            "example_scenario": "Rushing to finish a project before a deadline.",
+            "physical_sensations": [
+              "Racing heart",
+              "Tense shoulders",
+              "Furrowed brow"
+            ],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Rushed",
+            "description": "Feeling hurried or under time pressure, often leading to anxiety.",
+            "intensity": 4,
+            "synonyms": ["Hurried", "Frantic", "Pressed"],
+            "antonyms": ["Calm", "Leisurely", "Relaxed"],
+            "example_scenario": "Running late for an important meeting.",
+            "physical_sensations": [
+              "Racing heart",
+              "Quick movements",
+              "Sweaty palms"
+            ],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Stressed",
+        "description": "Feeling tense or overwhelmed, often due to excessive demands or challenges.",
+        "intensity": 5,
+        "synonyms": ["Tense", "Overwhelmed", "Strained"],
+        "antonyms": ["Relaxed", "Calm", "Peaceful"],
+        "example_scenario": "Dealing with a sudden financial crisis.",
+        "physical_sensations": [
+          "Tense muscles",
+          "Racing thoughts",
+          "Shallow breathing"
+        ],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Overwhelmed",
+            "description": "Feeling unable to manage or cope with the volume of tasks or emotions.",
+            "intensity": 5,
+            "synonyms": ["Swamped", "Overloaded", "Flooded"],
+            "antonyms": ["Managed", "Calm", "Relaxed"],
+            "example_scenario": "Trying to handle too many responsibilities at once.",
+            "physical_sensations": [
+              "Racing heart",
+              "Tense body",
+              "Feeling scattered"
+            ],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Out of control",
+            "description": "Feeling a lack of control over a situation, often leading to panic or frustration.",
+            "intensity": 5,
+            "synonyms": ["Chaotic", "Unmanageable", "Overwhelmed"],
+            "antonyms": ["In control", "Managed", "Calm"],
+            "example_scenario": "Losing control of a project as deadlines approach.",
+            "physical_sensations": ["Racing heart", "Trembling", "Panic"],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Tired",
+        "description": "Feeling physically or mentally exhausted, often due to lack of energy or rest.",
+        "intensity": 4,
+        "synonyms": ["Exhausted", "Fatigued", "Weary"],
+        "antonyms": ["Energized", "Rested", "Refreshed"],
+        "example_scenario": "Feeling drained after a long day of work.",
+        "physical_sensations": ["Heavy eyes", "Yawning", "Slow movements"],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Sleepy",
+            "description": "Feeling drowsy or in need of rest, often with difficulty staying alert.",
+            "intensity": 4,
+            "synonyms": ["Drowsy", "Sluggish", "Lethargic"],
+            "antonyms": ["Alert", "Awake", "Energized"],
+            "example_scenario": "Struggling to stay awake during a late-night study session.",
+            "physical_sensations": [
+              "Heavy eyelids",
+              "Yawning",
+              "Slow reactions"
+            ],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Unfocused",
+            "description": "Feeling unable to concentrate or maintain attention, often due to fatigue.",
+            "intensity": 3,
+            "synonyms": ["Distracted", "Scattered", "Unconcentrated"],
+            "antonyms": ["Focused", "Attentive", "Concentrated"],
+            "example_scenario": "Struggling to read a book after a sleepless night.",
+            "physical_sensations": [
+              "Wandering thoughts",
+              "Blank stare",
+              "Restlessness"
+            ],
+            "category": "Negative"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "feeling": "Disgust",
+    "description": "A strong feeling of aversion or revulsion, often triggered by something unpleasant or offensive.",
+    "intensity": 4,
+    "synonyms": ["Revulsion", "Aversion", "Repugnance"],
+    "antonyms": ["Attraction", "Delight", "Pleasure"],
+    "example_scenario": "Seeing spoiled food in the fridge.",
+    "physical_sensations": ["Wrinkled nose", "Gagging", "Turning away"],
+    "color": "Gray",
+    "category": "Negative",
+    "secondary": [
+      {
+        "feeling": "Disapproving",
+        "description": "Feeling critical or negative toward something deemed unacceptable or wrong.",
+        "intensity": 3,
+        "synonyms": ["Critical", "Judgmental", "Displeased"],
+        "antonyms": ["Approving", "Accepting", "Pleased"],
+        "example_scenario": "Frowning at someone’s rude behavior in public.",
+        "physical_sensations": [
+          "Furrowed brow",
+          "Crossed arms",
+          "Stern expression"
+        ],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Judgmental",
+            "description": "Feeling inclined to harshly evaluate or condemn others' actions or behaviors.",
+            "intensity": 3,
+            "synonyms": ["Critical", "Disapproving", "Condemning"],
+            "antonyms": ["Accepting", "Understanding", "Tolerant"],
+            "example_scenario": "Criticizing someone’s outfit choice harshly.",
+            "physical_sensations": [
+              "Stern expression",
+              "Raised eyebrow",
+              "Crossed arms"
+            ],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Embarrassed",
+            "description": "Feeling ashamed or uncomfortable due to association with something distasteful.",
+            "intensity": 3,
+            "synonyms": ["Ashamed", "Humiliated", "Awkward"],
+            "antonyms": ["Proud", "Confident", "Assured"],
+            "example_scenario": "Feeling ashamed to be associated with a rude family member.",
+            "physical_sensations": [
+              "Blushing",
+              "Avoiding eye contact",
+              "Tense posture"
+            ],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Disappointed",
+        "description": "Feeling let down or repelled by something that failed to meet moral or aesthetic standards.",
+        "intensity": 4,
+        "synonyms": ["Let down", "Dissatisfied", "Disheartened"],
+        "antonyms": ["Satisfied", "Pleased", "Fulfilled"],
+        "example_scenario": "Seeing a once-respected leader behave unethically.",
+        "physical_sensations": ["Frowning", "Heavy sigh", "Turning away"],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Appalled",
+            "description": "Feeling shocked or horrified by something offensive or unacceptable.",
+            "intensity": 5,
+            "synonyms": ["Horrified", "Shocked", "Outraged"],
+            "antonyms": ["Pleased", "Delighted", "Approving"],
+            "example_scenario": "Witnessing an act of cruelty toward an animal.",
+            "physical_sensations": ["Wide eyes", "Gagging", "Turning away"],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Revolted",
+            "description": "Feeling intense disgust or repulsion, often with a physical reaction.",
+            "intensity": 5,
+            "synonyms": ["Repulsed", "Sickened", "Disgusted"],
+            "antonyms": ["Attracted", "Pleased", "Delighted"],
+            "example_scenario": "Smelling something rancid in the kitchen.",
+            "physical_sensations": ["Wrinkled nose", "Gagging", "Turning away"],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Awful",
+        "description": "Feeling a strong sense of distaste or horror toward something deeply unpleasant.",
+        "intensity": 5,
+        "synonyms": ["Horrible", "Terrible", "Dreadful"],
+        "antonyms": ["Wonderful", "Pleasant", "Delightful"],
+        "example_scenario": "Seeing a graphic scene of violence on the news.",
+        "physical_sensations": ["Nausea", "Turning away", "Cold sweat"],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Nauseated",
+            "description": "Feeling physically sick or queasy due to disgust or revulsion.",
+            "intensity": 5,
+            "synonyms": ["Sickened", "Queasy", "Disgusted"],
+            "antonyms": ["Comfortable", "Well", "Pleased"],
+            "example_scenario": "Smelling spoiled milk in the fridge.",
+            "physical_sensations": ["Gagging", "Wrinkled nose", "Turning away"],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Detestable",
+            "description": "Feeling that something is utterly loathsome or abhorrent.",
+            "intensity": 5,
+            "synonyms": ["Abhorrent", "Loathsome", "Repugnant"],
+            "antonyms": ["Admirable", "Lovely", "Appealing"],
+            "example_scenario": "Hearing about a heinous crime in the news.",
+            "physical_sensations": [
+              "Cold sweat",
+              "Turning away",
+              "Stern expression"
+            ],
+            "category": "Negative"
+          }
+        ]
+      },
+      {
+        "feeling": "Repelled",
+        "description": "Feeling strongly pushed away or repulsed by something offensive or disturbing.",
+        "intensity": 4,
+        "synonyms": ["Repulsed", "Averse", "Disgusted"],
+        "antonyms": ["Attracted", "Drawn", "Pleased"],
+        "example_scenario": "Walking away from a pile of garbage on the street.",
+        "physical_sensations": ["Turning away", "Wrinkled nose", "Quick steps"],
+        "category": "Negative",
+        "tertiary": [
+          {
+            "feeling": "Horrified",
+            "description": "Feeling extreme shock or disgust, often with a sense of moral outrage.",
+            "intensity": 5,
+            "synonyms": ["Appalled", "Shocked", "Outraged"],
+            "antonyms": ["Pleased", "Delighted", "Calm"],
+            "example_scenario": "Seeing an act of injustice in person.",
+            "physical_sensations": ["Wide eyes", "Tense body", "Cold sweat"],
+            "category": "Negative"
+          },
+          {
+            "feeling": "Hesitant",
+            "description": "Feeling reluctant or wary, often due to a sense of unease or disgust.",
+            "intensity": 3,
+            "synonyms": ["Reluctant", "Wary", "Uncertain"],
+            "antonyms": ["Eager", "Confident", "Willing"],
+            "example_scenario": "Pausing before eating food that looks questionable.",
+            "physical_sensations": [
+              "Furrowed brow",
+              "Slow movements",
+              "Tense posture"
+            ],
+            "category": "Negative"
+          }
+        ]
+      }
+    ]
+  }
+]

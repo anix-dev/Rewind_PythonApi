@@ -5,3 +5,4 @@ torch
 spacy
 python-dotenv
 google-generativeai
+pydantic

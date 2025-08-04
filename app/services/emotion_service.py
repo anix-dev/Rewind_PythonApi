@@ -1,52 +1,13 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
 from transformers import pipeline
 import spacy
-from typing import List
-from datetime import datetime
-import random
-from replay_engine import build_replay
-from datetime import datetime
-from pydantic import BaseModel
-from typing import List
-from emotions import router as emotions_router
-app = FastAPI()
+from typing import List, Dict
 
 # Load models
 emotion_pipeline = pipeline("text-classification", model="nateraw/bert-base-uncased-emotion")
 nlp = spacy.load("en_core_web_sm")
 
 
-app.include_router(emotions_router)
-
-class ReplayRequest(BaseModel):
-    user_text: str
-    mood: str
-    longitude: float
-    latitude: float
-    events: List[str]
-    context_tags: List[str]
-    create_date: str
-
-
-@app.post("/replay")
-def generate_replay(request: ReplayRequest):
-    sample = request.dict()
-    context = {
-        "mood_today": sample["mood"],
-        "user_location": {
-            "lat": sample["latitude"],
-            "lng": sample["longitude"]
-        },
-        "today_date": datetime.utcnow().strftime('%Y-%m-%d')
-    }
-    replay = build_replay(sample, context)
-    return replay
-
-class TextRequest(BaseModel):
-    text: str
-
-# Keyword groups
+# Keywords for tag extraction
 keyword_categories = {
     "life_goal": [
         "dream", "goal", "aspire", "ambition", "bucket list", "always wanted", "before I die"
@@ -74,17 +35,13 @@ keyword_categories = {
     ],
     "loss_or_challenge": [
         "lost", "failure", "death", "passed away", "struggled", "broke", "hurt", "sick", "injury",
-        "pain", "accident", "disappointed", "rejected", "heartbreak", "illness", "depression","breakup"
+        "pain", "accident", "disappointed", "rejected", "heartbreak", "illness", "depression", "breakup"
     ],
     "sports_event": [
         "match", "game", "tournament", "won", "lost", "scored", "cricket", "football", "badminton",
         "played", "team", "goal", "innings", "batting", "bowling", "umpire", "stadium"
     ],
-     "health": [
-        "health", "fitness", "workout", "gym", "exercise", "yoga", "diet", "meditation", "wellness",
-        "doctor", "hospital", "surgery", "therapy", "recovery", "illness", "medicine", "pain", "checkup", "mental health"
-    ],
-      "health": [
+    "health": [
         "exercise", "gym", "fitness", "diet", "yoga", "workout", "wellness", "checkup", "health issue", "doctor",
         "hospital", "therapy", "mental health", "recovery", "meditation", "medicine", "clinic", "surgery", "nutrition"
     ]
@@ -134,8 +91,17 @@ context_keywords = {
 }
 
 
-# Helper Functions
-def detect_event_categories(text: str):
+# --------- MAIN FUNCTIONS --------- #
+
+def analyze_emotion(text: str) -> Dict:
+    result = emotion_pipeline(text)[0]
+    return {
+        "label": result["label"],
+        "score": round(result["score"], 4)
+    }
+
+
+def detect_event_categories(text: str) -> List[str]:
     tags = []
     lowered = text.lower()
     for category, keywords in keyword_categories.items():
@@ -143,7 +109,8 @@ def detect_event_categories(text: str):
             tags.append(category)
     return list(set(tags))
 
-def extract_time(text: str):
+
+def extract_time(text: str) -> str:
     lowered = text.lower()
     if "last year" in lowered: return "last year"
     if "college" in lowered: return "college"
@@ -153,7 +120,8 @@ def extract_time(text: str):
     if "birthday" in lowered: return "birthday"
     return "unknown"
 
-def extract_life_events(text):
+
+def extract_life_events(text: str) -> List[Dict]:
     doc = nlp(text)
     events = []
     for sent in doc.sents:
@@ -170,6 +138,7 @@ def extract_life_events(text):
                 })
     return events
 
+
 def extract_context_tags(text: str) -> List[str]:
     tags = set()
     lowered = text.lower()
@@ -178,6 +147,7 @@ def extract_context_tags(text: str) -> List[str]:
             if keyword in lowered:
                 tags.add(keyword)
     return list(tags)
+
 
 def generate_summary(text: str) -> str:
     text = text.lower()
@@ -201,6 +171,7 @@ def generate_summary(text: str) -> str:
         return "A moment of sadness or regret."
     return "Reflecting on a personal memory."
 
+
 def generate_replay_opportunity_score(memory: dict) -> float:
     score = 0.4
     mood = memory.get("mood", "").lower()
@@ -217,13 +188,11 @@ def generate_replay_opportunity_score(memory: dict) -> float:
 
     return round(min(score, 1.0), 2)
 
-# Final Endpoint
-@app.post("/detect-mood/text")
-def detect_mood(data: TextRequest):
-    text = data.text
-    emotion_result = emotion_pipeline(text)[0]
+
+def detect_mood_and_events(text: str) -> Dict:
+    emotion_result = analyze_emotion(text)
     mood = emotion_result["label"]
-    confidence = round(emotion_result["score"], 4)
+    confidence = emotion_result["score"]
 
     events = extract_life_events(text)
     event_types = list({e["category"] for e in events})
@@ -237,6 +206,7 @@ def detect_mood(data: TextRequest):
         "events": event_types,
         "context_tags": context_tags
     }
+
     replay_opportunity_score = generate_replay_opportunity_score(memory_data)
 
     return {

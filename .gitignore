@@ -3,34 +3,40 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-
-
-
-
-# Environment
-.env
+# Virtual environments
 .venv/
-venv/
 venv/
 env/
 ENV/
 
-# FastAPI-related
+# Environment variables
+.env
+
+# Logs
 *.log
 
 # VS Code
 .vscode/
 
-# Python/Jupyter
+# Jupyter
 .ipynb_checkpoints
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# Ignore models and checkpoints
-**/model/
-**/models/
+# Model files and checkpoints
+
+
+# Ignore model weights, not source code
+**/models/*.pt
+**/models/*.bin
+**/models/*.h5
+**/models/*.onnx
+**/models/*.ckpt
+
+
+
 **/checkpoints/
 *.bin
 *.h5
@@ -45,11 +51,10 @@ tokenizer_config.json
 vocab.txt
 special_tokens_map.json
 
-# Hugging Face cache
-~/.cache/huggingface/
+# Hugging Face / transformers cache
 .cache/
 
-# Ignore outputs and temp files
+# Outputs and temp files
 output/
 *.tmp
 *.bak

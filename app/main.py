@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.db.chroma_client import chroma_client
 
 from app.api.routes_emotion import router as emotion_router
 from app.api.routes_replay import router as replay_router
@@ -27,8 +28,21 @@ app.add_middleware(
 async def startup_event():
     try:
         await verify_connection()
+        
+        # Optional check if Chroma is initialized
+        if chroma_client is not None:
+            try:
+                # Just a test collection fetch to confirm it's working
+                chroma_client.get_or_create_collection(name="test-connection")
+                print("✅ ChromaDB is initialized and ready.")
+            except Exception as e:
+                print(f"❌ ChromaDB initialization failed: {e}")
+        else:
+            print("⚠️ ChromaDB client is not initialized.")
+
     except Exception as e:
         print(f"❌ MongoDB connection failed during startup: {e}")
+
 
 # Register your API routes
 app.include_router(emotion_router, prefix="/api")

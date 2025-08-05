@@ -1,36 +1,43 @@
-# app/db/llama_index_client.py
-
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
-from llama_index.vector_stores.chroma import ChromaVectorStore  # ✅ correct after upgrade
-from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.llms.openai import OpenAI
+import os
+from llama_index.core import VectorStoreIndex
+from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.core.settings import Settings
 from chromadb import PersistentClient
-import os
 
-# Path where ChromaDB stores vectors
-CHROMA_DB_DIR = os.getenv("CHROMA_DB_DIR", "./chroma_db")
+# GROQ/Gemini LLM imports
+USE_GROQ = bool(os.getenv("GROQ_API_KEY"))
+USE_GEMINI = bool(os.getenv("GEMINI_API_KEY"))
 
-# Chroma client
-chroma_client = PersistentClient(path=CHROMA_DB_DIR)
+if USE_GROQ:
+    from llama_index.llms.groq import Groq
+    llm = Groq(
+        model="llama3-70b-8192",  # or mixtral, gemma-7b-it
+        api_key=os.getenv("GROQ_API_KEY"),
+    )
+elif USE_GEMINI:
+    from llama_index.llms.gemini import Gemini
+    llm = Gemini(api_key=os.getenv("GEMINI_API_KEY"))
+else:
+    raise Exception("❌ No GROQ_API_KEY or GEMINI_API_KEY found in environment.")
 
-# Create or connect to a collection
-collection = chroma_client.get_or_create_collection("rewind-ai")
+# Embeddings: use local or OSS (since GROQ doesn’t offer embeddings)
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
-# Wrap it in a LlamaIndex vector store
-chroma_vector_store = ChromaVectorStore(chroma_collection=collection)
+embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
 
-# ✅ Define embedding model and LLM explicitly
-embed_model = OpenAIEmbedding(model="text-embedding-3-small")
-llm = OpenAI(model="gpt-3.5-turbo")
-
-# ✅ Set global settings (replaces ServiceContext)
-Settings.embed_model = embed_model
+# Settings for LlamaIndex
 Settings.llm = llm
+Settings.embed_model = embed_model
 
-# Build the index (empty or can load docs later)
-index = VectorStoreIndex.from_vector_store(
-    vector_store=chroma_vector_store
-)
+# Chroma setup
+CHROMA_DB_DIR = os.getenv("CHROMA_DB_DIR", "./chroma_db")
+collection_name = os.getenv("CHROMA_COLLECTION", "rewind-ai")
 
-print("✅ LlamaIndex initialized with ChromaDB.")
+chroma_client = PersistentClient(path=CHROMA_DB_DIR)
+collection = chroma_client.get_or_create_collection(collection_name)
+vector_store = ChromaVectorStore(chroma_collection=collection)
+
+# Build the index
+index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
+
+print(f"✅ LlamaIndex initialized using {'GROQ' if USE_GROQ else 'Gemini'} with ChromaDB.")

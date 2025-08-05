@@ -1,70 +1,65 @@
-from llama_index.core import Document, VectorStoreIndex, StorageContext
-from llama_index.vector_stores.chroma import ChromaVectorStore
-from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.core.settings import Settings
-from chromadb import PersistentClient
-import os
+# app/services/indexing_service.py
 
-# Load environment config
-CHROMA_DB_DIR = os.getenv("CHROMA_DB_DIR", "./chroma_db")
+from typing import List
+from llama_index.core.schema import Document
+from app.db.llama_index_client import index  # Ensure llama_index_client.py exports 'index'
 
-# Load ChromaDB persistent client
-chroma_client = PersistentClient(path=CHROMA_DB_DIR)
-chroma_collection = chroma_client.get_or_create_collection("rewind_index")
+def format_for_indexing(user_id: str, moods: list, replays: list) -> List[Document]:
+    """
+    Convert moods and replays into LlamaIndex-compatible Document objects.
+    """
+    documents = []
 
-# Setup LlamaIndex
-Settings.embed_model = OpenAIEmbedding()
-vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
-storage_context = StorageContext.from_defaults(vector_store=vector_store)
+    for mood in moods:
+        location_str = None
+        if mood.get("latitude") and mood.get("longitude"):
+            location_str = f"{mood['latitude']},{mood['longitude']}"
 
-# Create index once
-index = VectorStoreIndex.from_documents([], storage_context=storage_context)
+        doc = Document(
+            text=mood.get("user_text", ""),
+            metadata={
+                "type": "mood",
+                "user_id": user_id,
+                "mood": mood.get("mood"),
+                "location": location_str,
+                "date": str(mood.get("create_date")),
+                "source_id": str(mood.get("_id")),
+            }
+        )
+        documents.append(doc)
 
+    for replay in replays:
+        doc = Document(
+            text=replay.get("gem_response", ""),
+            metadata={
+                "type": "replay",
+                "user_id": user_id,
+                "location": replay.get("location") or None,  # already a string
+                "date": str(replay.get("create_date")),
+                "source_id": str(replay.get("_id")),
+            }
+        )
+        documents.append(doc)
 
-async def index_user_data(user_id: str, moods: list[dict], replays: list[dict]):
+    return documents
+
+async def index_user_data(user_id: str, moods: list, replays: list):
+    """
+    Index the user's moods and replays into the vector database.
+    """
     try:
-        documents = []
-
-        # Moods
-        for mood in moods:
-            text = mood.get("user_text") or mood.get("ai_response")
-            if text:
-                documents.append(
-                    Document(
-                        text=text,
-                        metadata={
-                            "user_id": str(mood["user"]),
-                            "type": "mood",
-                            "id": str(mood["_id"]),
-                        }
-                    )
-                )
-
-        # Replays
-        for replay in replays:
-            text = replay.get("gem_response") or replay.get("user_response")
-            if text:
-                documents.append(
-                    Document(
-                        text=text,
-                        metadata={
-                            "user_id": str(replay["user"]),
-                            "type": "replay",
-                            "id": str(replay["_id"]),
-                        }
-                    )
-                )
-
         print(f"📥 Indexing data for user {user_id}...")
-        if documents:
-            index = VectorStoreIndex.from_documents(
-                documents,
-                storage_context=storage_context
-            )
-            print(f"✅ Successfully indexed {len(documents)} documents for user {user_id}")
-        else:
-            print(f"ℹ️ No documents to index for user {user_id}")
+
+        docs = format_for_indexing(user_id, moods, replays)
+
+        if not docs:
+            print(f"⚠️ No documents to index for user {user_id}")
+            return
+
+        # This replaces the current reference documents with new ones
+        index.refresh_ref_docs(docs)
+        print(f"✅ Successfully indexed {len(docs)} documents for user {user_id}")
 
     except Exception as e:
         print(f"❌ Failed to index user data: {e}")
-        raise
+        raise e

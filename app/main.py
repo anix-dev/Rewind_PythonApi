@@ -12,6 +12,10 @@ from app.api.routes_emotion import router as emotion_router
 from app.api.routes_replay import router as replay_router
 # from app.api.routes_healing import router as healing_router  # Optional
 
+from app.api.routes_index import router as index_router
+
+
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Rewind Emotion Assistant API",
@@ -71,6 +75,8 @@ async def startup_event():
 # Include API routes
 app.include_router(emotion_router, prefix="/api")
 app.include_router(replay_router, prefix="/api")
+app.include_router(index_router, prefix="/api")
+
 # app.include_router(healing_router, prefix="/api")  # Optional
 
 # Health Check Endpoint

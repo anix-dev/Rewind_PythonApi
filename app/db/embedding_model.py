@@ -1,19 +1,11 @@
 # app/db/embedding_model.py
 
-from sentence_transformers import SentenceTransformer
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
-# Use this for production-grade models (lightweight and fast)
-MODEL_NAME = "all-MiniLM-L6-v2"
+# Initialize the embedding model
+embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
-try:
-    embedder = SentenceTransformer(MODEL_NAME)
-    print(f"✅ Embedding model '{MODEL_NAME}' loaded successfully.")
-except Exception as e:
-    embedder = None
-    print(f"❌ Failed to load embedding model: {e}")
+# For compatibility, provide an alias if other parts of the codebase expect 'embedder'
+embedder = embed_model
 
-
-def get_embedding(text: str) -> list[float]:
-    if embedder is None:
-        raise RuntimeError("Embedding model is not initialized.")
-    return embedder.encode(text).tolist()
+print("✅ HuggingFace embed_model initialized.")

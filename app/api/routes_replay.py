@@ -5,6 +5,8 @@ from app.models.schemas import ReplayRequest, ReplayCreateRequest
 from app.services.replay_service import build_replay
 from app.db.mongo_client import db
 
+from app.services.indexing_service import index_user_data  # or index_single_replay
+
 router = APIRouter()
 
 
@@ -58,11 +60,11 @@ async def get_user_replays(user_id: str):
     return serialized
 
 
+
 @router.post("/user-replay")
 async def create_user_replay(replay_data: ReplayCreateRequest):
     """
-    Stores a user-generated replay in the MongoDB database.
-    Requires valid ObjectIds for user and moods fields.
+    Stores a user-generated replay in MongoDB and indexes it.
     """
     try:
         user_object_id = ObjectId(replay_data.user)
@@ -70,11 +72,23 @@ async def create_user_replay(replay_data: ReplayCreateRequest):
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid ObjectId for user or moods")
 
+    # Convert and store replay
     replay_dict = replay_data.dict()
     replay_dict["user"] = user_object_id
     replay_dict["moods"] = moods_object_id
 
     result = await db.replays.insert_one(replay_dict)
     created_replay = await db.replays.find_one({"_id": result.inserted_id})
+
+    # Index the new replay
+    try:
+        await index_user_data(
+            user_id=str(user_object_id),
+            moods=[],                     # No mood reindexing here
+            replays=[created_replay]      # Index only this new replay
+        )
+        print(f"✅ Indexed new replay for user {user_object_id}")
+    except Exception as e:
+        print(f"❌ Indexing failed: {e}")
 
     return serialize_mongo_doc(created_replay)

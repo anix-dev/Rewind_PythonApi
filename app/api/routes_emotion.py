@@ -4,6 +4,10 @@ from app.services.emotion_service import analyze_emotion, detect_mood_and_events
 from app.db.mongo_client import db
 from bson import ObjectId
 from fastapi import HTTPException
+from fastapi import Body
+from app.models.schemas import MoodCreateRequest
+
+
 
 
 router = APIRouter()
@@ -44,3 +48,21 @@ async def list_collections():
     collections = await db.list_collection_names()
     print(f"[INFO] Available collections: {collections}")
     return {"collections": collections}
+
+
+
+@router.post("/moods")
+async def create_mood(mood_data: MoodCreateRequest):
+    try:
+        user_object_id = ObjectId(mood_data.user)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid user_id format")
+
+    mood_dict = mood_data.dict()
+    mood_dict["user"] = user_object_id  # Convert user ID to ObjectId
+
+    result = await db.moods.insert_one(mood_dict)
+    created_mood = await db.moods.find_one({"_id": result.inserted_id})
+
+    return serialize_mongo_doc(created_mood)
+

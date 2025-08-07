@@ -90,31 +90,3 @@ async def search_memories(request: SearchRequest):
     except Exception as e:
         print("❌ Error during memory search:", e)
         return {"error": "Internal Server Error", "details": str(e)}
-
-
-@router.get("/user-indexed-data")
-async def get_indexed_data(user_id: str = Query(...), top_k: int = 5):
-    """
-    Fetch top indexed documents for a user (for debugging or UI preview).
-    """
-    try:
-        filters = MetadataFilters(filters=[MetadataFilter(key="user_id", value=user_id)])
-        query_engine = index.as_query_engine(similarity_top_k=top_k, filters=filters)
-        response = query_engine.query("dummy")  # 'dummy' forces vector retrieval
-
-        if not hasattr(response, 'source_nodes'):
-            return {"message": "No indexed data found."}
-
-        documents: List[str] = []
-        for node in response.source_nodes:
-            text = node.node.text.strip()
-            documents.append(text[:1000])  # Clip long results
-
-        return {
-            "user_id": user_id,
-            "documents": documents
-        }
-
-    except Exception as e:
-        print("❌ Error fetching indexed data:", e)
-        return {"error": "Failed to fetch user data", "details": str(e)}

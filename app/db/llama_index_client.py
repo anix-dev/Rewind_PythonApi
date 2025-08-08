@@ -4,32 +4,39 @@ from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.core.settings import Settings
 from chromadb import PersistentClient
 
-# GROQ/Gemini LLM imports
+# Flags for LLM selection
 USE_GROQ = bool(os.getenv("GROQ_API_KEY"))
 USE_GEMINI = bool(os.getenv("GEMINI_API_KEY"))
 
+# LLM setup
 if USE_GROQ:
     from llama_index.llms.groq import Groq
     llm = Groq(
         model="llama3-70b-8192",  # or mixtral, gemma-7b-it
         api_key=os.getenv("GROQ_API_KEY"),
     )
+    print("✅ Using Groq: llama3-70b-8192 pricing as per Groq API rates.")
+
 elif USE_GEMINI:
     from llama_index.llms.gemini import Gemini
-    llm = Gemini(api_key=os.getenv("GEMINI_API_KEY"))
+    llm = Gemini(
+        model="gemini-2.5-flash-lite",   # ✅ Explicit model selection for cheapest tier
+        api_key=os.getenv("GEMINI_API_KEY"),
+    )
+    print("✅ Using Gemini 2.5 Flash-Lite at $0.10/M input tokens & $0.40/M output tokens.")
+
 else:
     raise Exception("❌ No GROQ_API_KEY or GEMINI_API_KEY found in environment.")
 
-# Embeddings: use local or OSS (since GROQ doesn’t offer embeddings)
+# Local embeddings (free)
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-
 embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
 
-# Settings for LlamaIndex
+# Apply settings globally
 Settings.llm = llm
 Settings.embed_model = embed_model
 
-# Chroma setup
+# ChromaDB setup (local)
 CHROMA_DB_DIR = os.getenv("CHROMA_DB_DIR", "./chroma_db")
 collection_name = os.getenv("CHROMA_COLLECTION", "rewind-ai")
 

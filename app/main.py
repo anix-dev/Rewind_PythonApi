@@ -19,12 +19,13 @@ from app.api.routes_index import router as index_router
 
 
 
-# Initialize FastAPI app
 app = FastAPI(
     title="Rewind Emotion Assistant API",
     description="API for detecting emotion, extracting memory context, and generating AI reflections",
-    version="1.0.0"
+    version="1.0.0",
+    root_path="/ai"  # <--- Add this line
 )
+
 
 # CORS (Adjust origins for production)
 app.add_middleware(

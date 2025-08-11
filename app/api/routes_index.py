@@ -10,6 +10,8 @@ from app.services.indexing_service import index_user_data
 
 from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
 
+from llama_index.core.prompts import PromptTemplate
+
 router = APIRouter()
 
 # --- Models ---
@@ -67,26 +69,72 @@ async def index_user(request: Request):
 @router.post("/search-memories")
 async def search_memories(request: SearchRequest):
     """
-    Semantic search on indexed memories using user's query.
+    Semantic search on indexed memories using user's query,
+    returning an emotion-adaptive reply that addresses the user by name.
     """
     try:
         print("🧠 Query received:", request.query)
 
-        filters = MetadataFilters(filters=[MetadataFilter(key="user_id", value=request.user_id)])
-        query_engine = index.as_query_engine(similarity_top_k=3, filters=filters)
+        # 1. Fetch user name from DB
+        try:
+            user_doc = await db.users.find_one(
+                {"_id": ObjectId(request.user_id)},
+                {"username": 1}
+            )
+        except Exception:
+            raise HTTPException(status_code=400, detail="Invalid user_id format")
+
+        user_name = user_doc["username"] if user_doc and "username" in user_doc else "friend"
+
+        # 2. Prepare metadata filters
+        filters = MetadataFilters(filters=[
+            MetadataFilter(key="user_id", value=request.user_id)
+        ])
+        
+        print("🧠  user_name:", user_doc)
+        
+        
+        empathetic_template = PromptTemplate(
+    f"You are an empathetic and supportive companion speaking to {user_name}. "
+    f"First, answer the user's question accurately and factually using the retrieved memories. "
+    f"Include any relevant dates, moods, locations, and causes found in the memories. "
+    f"After giving the facts, follow up with a warm, understanding, and compassionate response. "
+    f"Acknowledge their feelings and, if appropriate, offer gentle encouragement.\n\n"
+    "Memories:\n{{context_str}}\n"
+    "User's Question: {{query_str}}\n"
+    "Your Reply:"
+)
+
+
+        # 4. Run query against vector index
+        query_engine = index.as_query_engine(
+            similarity_top_k=3,
+            filters=filters,
+            text_qa_template=empathetic_template
+        )
+
         response = query_engine.query(request.query)
 
+        # 5. Debug info
         print("🔍 Raw LLM Response:", response)
-
         if hasattr(response, 'source_nodes'):
             print("📚 Retrieved Docs:")
             for node in response.source_nodes:
                 print("  👉", node.node.text[:100], "...")
+                
 
+        # 6. Return final structured result
         return {
-            "result": str(response) if response and str(response).strip() else "🤖 I couldn't find anything relevant."
+            "result": str(response).strip()
+            if response and str(response).strip()
+            else "🤖 I couldn't find anything relevant."
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         print("❌ Error during memory search:", e)
-        return {"error": "Internal Server Error", "details": str(e)}
+        return {
+            "error": "Internal Server Error",
+            "details": str(e)
+        }

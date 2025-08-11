@@ -64,7 +64,7 @@ async def list_collections():
     return {"collections": collections}
 
 
-@router.post("/moods")
+@router.post("/mood-detect")
 async def create_mood_with_replay(mood_data: MoodCreateRequest):
     try:
         user_object_id = ObjectId(mood_data.user)

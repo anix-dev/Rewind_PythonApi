@@ -1,23 +1,20 @@
-from fastapi import APIRouter, Request, HTTPException, Query
+from fastapi import APIRouter, Request, HTTPException
 from pydantic import BaseModel
 from typing import List
-
 from bson import ObjectId
+import random
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 from app.db.mongo_client import db
-from app.db.llama_index_client import index  # Your shared LlamaIndex instance
-from app.db.llama_index_client import generate_fallback_response
-
+from app.db.llama_index_client import index, llm, generate_fallback_response
 from app.services.indexing_service import index_user_data
-
 from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
-
 from llama_index.core.prompts import PromptTemplate
 
 router = APIRouter()
 
 # --- Models ---
-
 class SearchRequest(BaseModel):
     user_id: str
     query: str
@@ -26,15 +23,51 @@ class IndexRequest(BaseModel):
     user_id: str
 
 # --- Helpers ---
-
 def serialize_mongo_doc(doc):
     doc["_id"] = str(doc["_id"])
     if "user" in doc and isinstance(doc["user"], ObjectId):
         doc["user"] = str(doc["user"])
     return doc
 
-# --- Routes ---
+def is_casual_query(text: str) -> bool:
+    casual_greetings = {"hi", "hello", "hey", "how are you", "what's up", "yo"}
+    normalized = text.strip().lower()
+    return len(normalized) <= 10 or normalized in casual_greetings
 
+CASUAL_FALLBACK_TEMPLATES = [
+    "Hey {user_name}! I'm here for you. What would you like to chat about today?",
+    "Hi {user_name}, hope you're doing well! How can I assist you?",
+    "Hello {user_name}! It's great to hear from you. What’s on your mind?",
+    "Hi {user_name}! Feel free to tell me anything you'd like to share.",
+]
+
+async def generate_casual_fallback_response(user_name: str, user_query: str) -> str:
+    return random.choice(CASUAL_FALLBACK_TEMPLATES).format(user_name=user_name)
+
+async def generate_interactive_fallback_response(user_name: str, user_query: str) -> str:
+    # You can customize the system message / prompt for Gemini-like behavior here
+    prompt = f"""
+You are a friendly, intelligent, and empathetic AI assistant named RewindBot, chatting with {user_name}. 
+Your goal is to respond helpfully, naturally, and engagingly, just like Gemini or ChatGPT.
+Answer the user's question thoughtfully and warmly.
+If appropriate, ask a follow-up question to keep the conversation going.
+
+User's input: "{user_query}"
+Your response:
+"""
+
+    def call_llm_sync():
+        # Use your existing llm.complete call, which must accept prompt text and return a response
+        return llm.complete(prompt).text
+
+    loop = asyncio.get_event_loop()
+    with ThreadPoolExecutor() as pool:
+        result = await loop.run_in_executor(pool, call_llm_sync)
+
+    return result.strip()
+
+
+# --- Routes ---
 @router.post("/index-user-data")
 async def index_user(request: Request):
     """
@@ -67,14 +100,8 @@ async def index_user(request: Request):
         print(f"❌ Failed to index user data: {e}")
         raise HTTPException(status_code=500, detail="Failed to index user data")
 
-
 @router.post("/search-memories")
 async def search_memories(request: SearchRequest):
-    """
-    Semantic search on indexed memories using user's query,
-    returning an emotion-adaptive reply that addresses the user by name.
-    Falls back to generating a warm AI response if no memories are found.
-    """
     try:
         print("🧠 Query received:", request.query)
 
@@ -89,7 +116,12 @@ async def search_memories(request: SearchRequest):
 
         user_name = user_doc["username"] if user_doc and "username" in user_doc else "friend"
 
-        # 2. Prepare metadata filters for vector search
+        # 2. Detect casual query and respond directly
+        if is_casual_query(request.query):
+            fallback_text = await generate_casual_fallback_response(user_name, request.query)
+            return {"result": fallback_text}
+
+        # 3. Prepare metadata filters for vector search
         filters = MetadataFilters(filters=[
             MetadataFilter(key="user_id", value=request.user_id)
         ])
@@ -105,7 +137,7 @@ async def search_memories(request: SearchRequest):
             "Your Reply:"
         )
 
-        # 3. Run query against vector index
+        # 4. Run query against vector index
         query_engine = index.as_query_engine(
             similarity_top_k=3,
             filters=filters,
@@ -120,13 +152,13 @@ async def search_memories(request: SearchRequest):
             for node in response.source_nodes:
                 print("  👉", node.node.text[:100], "...")
 
-        # 4. Check if response is empty or trivial, fallback if so
+        # 5. Check if response is empty or trivial
         if not response or str(response).strip() in ("", "Empty Response"):
-            print("⚠️ No relevant memories found, generating fallback response...")
-            fallback_text = await generate_fallback_response(user_name, request.query)
+            print("⚠️ No relevant memories found, generating interactive fallback response...")
+            fallback_text = await generate_interactive_fallback_response(user_name, request.query)
             return {"result": fallback_text}
 
-        # 5. Return structured response
+        # 6. Return final response
         return {
             "result": str(response).strip()
         }

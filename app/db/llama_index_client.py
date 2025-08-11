@@ -4,6 +4,9 @@ from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.core.settings import Settings
 from chromadb import PersistentClient
 
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
+
 # Flags for LLM selection
 USE_GROQ = bool(os.getenv("GROQ_API_KEY"))
 USE_GEMINI = bool(os.getenv("GEMINI_API_KEY"))
@@ -48,3 +51,28 @@ vector_store = ChromaVectorStore(chroma_collection=collection)
 index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
 
 print(f"✅ LlamaIndex initialized using {'GROQ' if USE_GROQ else 'Gemini'} with ChromaDB.")
+
+
+
+
+
+
+
+
+async def generate_fallback_response(user_name: str, user_query: str) -> str:
+    prompt = f"""
+    You are an empathetic and supportive companion named {user_name}. 
+    The user asked: "{user_query}".
+    You don't have any prior memories or context.
+    Please respond warmly and compassionately, acknowledging their feelings and offering gentle encouragement.
+    """
+
+    def call_llm_sync():
+        # This calls the llm synchronously because some llm clients are sync
+        return llm.complete(prompt).text
+
+    loop = asyncio.get_event_loop()
+    with ThreadPoolExecutor() as pool:
+        result = await loop.run_in_executor(pool, call_llm_sync)
+
+    return result.strip()

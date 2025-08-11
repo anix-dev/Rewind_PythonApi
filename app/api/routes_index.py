@@ -6,6 +6,8 @@ from bson import ObjectId
 
 from app.db.mongo_client import db
 from app.db.llama_index_client import index  # Your shared LlamaIndex instance
+from app.db.llama_index_client import generate_fallback_response
+
 from app.services.indexing_service import index_user_data
 
 from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
@@ -71,6 +73,7 @@ async def search_memories(request: SearchRequest):
     """
     Semantic search on indexed memories using user's query,
     returning an emotion-adaptive reply that addresses the user by name.
+    Falls back to generating a warm AI response if no memories are found.
     """
     try:
         print("🧠 Query received:", request.query)
@@ -86,27 +89,23 @@ async def search_memories(request: SearchRequest):
 
         user_name = user_doc["username"] if user_doc and "username" in user_doc else "friend"
 
-        # 2. Prepare metadata filters
+        # 2. Prepare metadata filters for vector search
         filters = MetadataFilters(filters=[
             MetadataFilter(key="user_id", value=request.user_id)
         ])
-        
-        print("🧠  user_name:", user_doc)
-        
-        
+
         empathetic_template = PromptTemplate(
-    f"You are an empathetic and supportive companion speaking to {user_name}. "
-    f"First, answer the user's question accurately and factually using the retrieved memories. "
-    f"Include any relevant dates, moods, locations, and causes found in the memories. "
-    f"After giving the facts, follow up with a warm, understanding, and compassionate response. "
-    f"Acknowledge their feelings and, if appropriate, offer gentle encouragement.\n\n"
-    "Memories:\n{{context_str}}\n"
-    "User's Question: {{query_str}}\n"
-    "Your Reply:"
-)
+            f"You are an empathetic and supportive companion speaking to {user_name}. "
+            f"First, answer the user's question accurately and factually using the retrieved memories. "
+            f"Include any relevant dates, moods, locations, and causes found in the memories. "
+            f"After giving the facts, follow up with a warm, understanding, and compassionate response. "
+            f"Acknowledge their feelings and, if appropriate, offer gentle encouragement.\n\n"
+            "Memories:\n{{context_str}}\n"
+            "User's Question: {{query_str}}\n"
+            "Your Reply:"
+        )
 
-
-        # 4. Run query against vector index
+        # 3. Run query against vector index
         query_engine = index.as_query_engine(
             similarity_top_k=3,
             filters=filters,
@@ -115,19 +114,21 @@ async def search_memories(request: SearchRequest):
 
         response = query_engine.query(request.query)
 
-        # 5. Debug info
         print("🔍 Raw LLM Response:", response)
         if hasattr(response, 'source_nodes'):
             print("📚 Retrieved Docs:")
             for node in response.source_nodes:
                 print("  👉", node.node.text[:100], "...")
-                
 
-        # 6. Return final structured result
+        # 4. Check if response is empty or trivial, fallback if so
+        if not response or str(response).strip() in ("", "Empty Response"):
+            print("⚠️ No relevant memories found, generating fallback response...")
+            fallback_text = await generate_fallback_response(user_name, request.query)
+            return {"result": fallback_text}
+
+        # 5. Return structured response
         return {
             "result": str(response).strip()
-            if response and str(response).strip()
-            else "🤖 I couldn't find anything relevant."
         }
 
     except HTTPException:

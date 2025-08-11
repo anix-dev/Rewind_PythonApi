@@ -35,6 +35,11 @@ Thumbs.db
 **/models/*.onnx
 **/models/*.ckpt
 
+# Ignore the SQLite database file
+chroma_db/chroma.sqlite3
+
+# If you want to ignore the whole chroma_db folder (including the DB and others), use:
+# chroma_db/
 
 
 **/checkpoints/

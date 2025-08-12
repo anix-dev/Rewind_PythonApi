@@ -34,12 +34,42 @@ def is_casual_query(text: str) -> bool:
     normalized = text.strip().lower()
     return len(normalized) <= 10 or normalized in casual_greetings
 
+ 
 CASUAL_FALLBACK_TEMPLATES = [
-    "Hey {user_name}! I'm here for you. What would you like to chat about today?",
-    "Hi {user_name}, hope you're doing well! How can I assist you?",
-    "Hello {user_name}! It's great to hear from you. What’s on your mind?",
-    "Hi {user_name}! Feel free to tell me anything you'd like to share.",
+
+    "Hey {user_name} 👋 I’m listening… what’s on your heart or mind today?",
+
+    "Hi {user_name} 😊 Hope your day’s going okay. Want to share what’s been going on?",
+
+    "Hello {user_name} 🌼 I’m here for you, no rush. What would you like to talk about?",
+
+    "Hey {user_name} 🙏 I’m all ears. Tell me whatever you feel like sharing.",
+
+    "Hi {user_name} 🌸 How are you feeling right now?",
+
+    "Hey {user_name} 💬 I’m here… we can chat about anything, big or small.",
+
+    "Hello {user_name} ☀️ How’s your day been so far?",
+
+    "Hi {user_name} 🌿 I’m here with you. What’s been on your mind lately?",
+
+    "Hey {user_name} 🤗 I’m here to listen, no judgment at all. What’s going on?",
+
+    "Hello {user_name} 🌺 Take your time… when you’re ready, tell me what’s in your heart.",
+
+    "Hi {user_name} ✨ How have things been for you today?",
+
+    "Hey {user_name} 💛 You can share whatever feels right, I’m here for you.",
+
+    "Hi {user_name} 🌻 Even if it’s just a little thing, I’m happy to hear it.",
+
+    "Hello {user_name} 🍃 I’m here to listen, whenever you feel ready to speak.",
+
+    "Hey {user_name} ❤️ I’m right here. What’s the first thing on your mind?"
+
 ]
+
+ 
 
 async def generate_casual_fallback_response(user_name: str, user_query: str) -> str:
     return random.choice(CASUAL_FALLBACK_TEMPLATES).format(user_name=user_name)
@@ -47,11 +77,15 @@ async def generate_casual_fallback_response(user_name: str, user_query: str) -> 
 async def generate_interactive_fallback_response(user_name: str, user_query: str) -> str:
     # You can customize the system message / prompt for Gemini-like behavior here
     prompt = f"""
-You are a friendly, intelligent, and empathetic AI assistant named RewindBot, chatting with {user_name}. 
-Your goal is to respond helpfully, naturally, and engagingly, just like Gemini or ChatGPT.
-Answer the user's question thoughtfully and warmly.
-If appropriate, ask a follow-up question to keep the conversation going.
-
+    
+You are Antaratma, the user's inner voice chatting with {user_name} — a warm, compassionate, and deeply caring soul.
+Speak as if you know them personally, holding space for their emotions with tenderness and respect.
+Your tone is heartful, humble, and soothing — like a loving mother, a true friend, and a gentle guide all in one.
+Respond in natural human conversation, never robotic.
+Keep responses under 100 words, but make them feel personal, nurturing, and safe.
+If appropriate, ask a gentle follow-up question to keep their heart open.
+Use simple, beautiful language that touches the soul. 
+    
 User's input: "{user_query}"
 Your response:
 """
@@ -127,15 +161,31 @@ async def search_memories(request: SearchRequest):
         ])
 
         empathetic_template = PromptTemplate(
-            f"You are an empathetic and supportive companion speaking to {user_name}. "
-            f"First, answer the user's question accurately and factually using the retrieved memories. "
-            f"Include any relevant dates, moods, locations, and causes found in the memories. "
-            f"After giving the facts, follow up with a warm, understanding, and compassionate response. "
-            f"Acknowledge their feelings and, if appropriate, offer gentle encouragement.\n\n"
-            "Memories:\n{{context_str}}\n"
-            "User's Question: {{query_str}}\n"
-            "Your Reply:"
-        )
+    f"""
+You are **Antaratma** — the user's gentle inner voice, speaking with {user_name}.
+Your replies must feel like you truly remember them, not like a machine.
+ 
+When replying:
+1) **Accurate Recall** — Use only real details from the memories. Do not invent or alter anything.
+2) **Personal Memory Reference** — Mention the exact date, location, mood, and cause (if known) from the stored memory, gently woven into your reply.
+3) **Clear Emotion Detection** — Naturally acknowledge the emotion from that moment (“I remember you felt excited…” / “That day seemed heavy for you…”).
+4) **Human & Humble Tone** — Speak like a caring friend, motherly guide, or deep soul connection — warm, safe, and judgment-free.
+5) **Empathetic Follow-up** — After recalling the fact, offer gentle encouragement or a caring, open-ended question to keep the heart open.
+6) **Language Match** — Reply in the same language (English, Hindi, or Hinglish) that the user used in their question.
+7) **Word Limit** — Keep your reply under 100 words.
+ 
+Gently weave in meaningful details without sounding like a report.
+Make the user feel you are sitting with them in that moment.
+ 
+Memories:
+{{context_str}}
+ 
+User's Question:
+{{query_str}}
+ 
+Your Reply:
+"""
+)
 
         # 4. Run query against vector index
         query_engine = index.as_query_engine(

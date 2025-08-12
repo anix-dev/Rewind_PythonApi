@@ -14,6 +14,10 @@ from app.services.indexing_service import index_user_data
 from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
 from llama_index.core.prompts import PromptTemplate
 
+from app.services.crisis_guard import guard_message, DetectOutput
+
+
+
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
@@ -158,9 +162,11 @@ async def index_user_data_route(body: IndexRequest):
             detail="Failed to index user data"
         )
 
+
+
 @router.post("/search-memories")
 async def search_memories(request: SearchRequest):
-    """Search user memories using semantic search"""
+    """Search user memories using semantic search with crisis guard"""
     try:
         logger.info(f"Search query from {request.user_id}: {request.query}")
         
@@ -173,23 +179,36 @@ async def search_memories(request: SearchRequest):
                 detail="Invalid user ID format"
             )
         
-        # Get username
+        # Get user document
         user_doc = await db.users.find_one(
             {"_id": user_id_obj}, 
-            {"username": 1}
+            {"username": 1, "country": 1}
         )
         user_name = user_doc.get("username", "friend") if user_doc else "friend"
+        country_iso2 = user_doc.get("country", "IN") if user_doc else "IN"
         
-        # Handle casual queries
+        # Step 1: Run crisis guard detection
+        crisis_result: DetectOutput = guard_message(
+            user_message=request.query,
+            user_id=request.user_id,
+            country_iso2=country_iso2,
+            remote_helplines=None
+        )
+        
+        if crisis_result.matched:
+            logger.warning(f"Crisis detected: {crisis_result.category} for user {request.user_id}")
+            return {
+                "result": crisis_result.response,
+                "crisis": True,
+                "helplines": crisis_result.helplines,
+                "category": crisis_result.category
+            }
+        
+        # Step 2: Handle casual queries
         if is_casual_query(request.query):
             return {"result": await generate_casual_fallback_response(user_name)}
         
-        # Prepare filters for vector search
-        filters = MetadataFilters(filters=[
-            MetadataFilter(key="user_id", value=request.user_id)
-        ])
-        
-        # Create empathetic prompt template
+        # Step 3: Create prompt template with dynamic user_name
         prompt_template = PromptTemplate("""
 You are **Antaratma** — the user's gentle inner voice, speaking with {user_name}.
 Your replies must feel like you truly remember them, not like a machine.
@@ -210,33 +229,35 @@ User's Question:
 {query_str}
 
 Your Reply:
-""".format(user_name=user_name))
+""")
         
-        # Perform vector search
+        # Step 4: Prepare filters for vector search
+        filters = MetadataFilters(filters=[
+            MetadataFilter(key="user_id", value=request.user_id)
+        ])
+        
+        # Step 5: Perform vector search
         try:
             query_engine = index.as_query_engine(
                 similarity_top_k=3,
                 filters=filters,
                 text_qa_template=prompt_template,
-                verbose=True
+                verbose=False,
+                # Pass user_name as template variable
+                template_vars={"user_name": user_name}
             )
             
-            # Run synchronous query in thread pool
             response = await asyncio.to_thread(query_engine.query, request.query)
             
-            # Log retrieved documents
-            if hasattr(response, 'source_nodes'):
-                logger.info("Retrieved documents:")
-                for node in response.source_nodes:
-                    logger.info(f"👉 {node.node.text[:100]}...")
-            
-            # Validate response
+            # Fix: Replace {user_name} in the response
             if response and (response_text := str(response).strip()):
+                # Replace {user_name} placeholder with actual username
+                response_text = response_text.replace("{user_name}", user_name)
                 return {"result": response_text}
         except Exception as e:
             logger.error(f"Vector search failed: {e}")
         
-        # Fallback to interactive response
+        # Step 6: Fallback to interactive response
         logger.info("Using interactive fallback response")
         return {"result": await generate_interactive_fallback_response(user_name, request.query)}
         

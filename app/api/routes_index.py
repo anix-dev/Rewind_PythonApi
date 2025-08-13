@@ -29,6 +29,12 @@ class SearchRequest(BaseModel):
 class IndexRequest(BaseModel):
     user_id: str
 
+class ChatReplayRequest(BaseModel):
+    user_id: str
+    replay_id: str
+    query: str
+
+
 # --- Helpers ---
 def normalize_text(text: str) -> str:
     """Normalize text for comparison: lowercase, remove punctuation, and trim"""
@@ -266,3 +272,98 @@ Your Reply:
     except Exception as e:
         logger.exception(f"Unexpected search error: {e}")
         return {"result": await generate_interactive_fallback_response("friend", request.query)}
+    
+    
+
+@router.post("/chat-about-replay")
+async def chat_about_replay(request: ChatReplayRequest):
+    """
+    Chat specifically about a particular replay
+    """
+    try:
+        logger.info(f"Replay chat request from {request.user_id} for replay {request.replay_id}")
+        
+        # Validate user ID
+        try:
+            user_id_obj = ObjectId(request.user_id)
+            replay_id_obj = ObjectId(request.replay_id)
+        except InvalidId:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid ID format"
+            )
+        
+        # Fetch user document
+        user_doc = await db.users.find_one(
+            {"_id": user_id_obj}, 
+            {"username": 1}
+        )
+        user_name = user_doc.get("username", "friend") if user_doc else "friend"
+        
+        # Fetch replay document
+        replay = await db.replays.find_one(
+            {"_id": replay_id_obj, "user": user_id_obj},
+            {"gem_response": 1, "user_response": 1, "moods": 1, "create_date": 1}
+        )
+        
+        
+        if not replay:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Replay not found or doesn't belong to user"
+            )
+        
+        # Fetch associated mood if available
+        mood_text = ""
+        if replay.get("moods"):
+            mood = await db.moods.find_one(
+                {"_id": ObjectId(replay["moods"])},
+                {"user_text": 1}
+            )
+            mood_text = mood.get("user_text", "") if mood else ""
+            
+        # Prepare context with replay details
+        context = f"""
+## Replay Details:
+- Date: {replay.get('create_date', 'Unknown date')}
+- Your original reflection: {mood_text}
+- Your response to guidance: {replay.get('user_response', '')}
+- Previous guidance provided: {replay.get('gem_response', '')}
+"""
+        # Prepare prompt template
+        prompt = PromptTemplate(f"""
+You are **Antaratma** - the user's inner voice having a focused conversation about a specific past reflection.
+Speak with {user_name} in a warm, compassionate tone, acknowledging this is a revisit of a previous moment.
+
+### Context for this conversation:
+{context}
+
+### Current conversation:
+User: {request.query}
+
+### Your Response Guidelines:
+1. Focus specifically on this replay context
+2. Acknowledge this is a revisit of a past moment
+3. Connect the current query to the original reflection
+4. Offer new perspective while honoring past insights
+5. Keep response under 100 words
+6. Speak in natural, caring language
+
+Response:
+""")
+        
+        # Generate response
+        def generate_response():
+            return llm.complete(prompt.format(user_name=user_name, context=context, query=request.query)).text
+        
+        loop = asyncio.get_running_loop()
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            response = await loop.run_in_executor(executor, generate_response)
+        
+        return {"result": response.strip()}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception(f"Replay chat failed: {e}")
+        return {"result": f"I had trouble accessing that memory. Let's try again?"}

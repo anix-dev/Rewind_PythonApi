@@ -288,12 +288,15 @@ User's Question:
             )
             
             response = await asyncio.to_thread(query_engine.query, request.query)
+            response_text = str(response).strip() if response else ""
             
-            # Fix: Replace {user_name} in the response
-            if response and (response_text := str(response).strip()):
-                # Replace {user_name} placeholder with actual username
+            if response_text:
                 response_text = response_text.replace("{user_name}", user_name)
                 return {"result": response_text}
+            else:
+                return {"result": await generate_interactive_fallback_response(user_name, request.query)}
+
+        
         except Exception as e:
             logger.error(f"Vector search failed: {e}")
         

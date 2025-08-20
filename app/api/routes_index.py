@@ -16,8 +16,6 @@ from llama_index.core.prompts import PromptTemplate
 
 from app.services.crisis_guard import guard_message, DetectOutput
 
-
-
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
@@ -34,36 +32,44 @@ class ChatReplayRequest(BaseModel):
     replay_id: str
     query: str
 
+# =============== Normalization ===============
+def normalize(text: str) -> str:
+    # Keep it simple but robust
+    s = text.lower()
+    s = re.sub(r"[“”]", '"', s)
+    s = re.sub(r"[‘’]", "'", s)
+    s = re.sub(r"[\u200b-\u200d\uFEFF]", "", s)  # zero-width chars
+    s = s.strip()
+    return s
 
-# --- Helpers ---
-def normalize_text(text: str) -> str:
-    """Normalize text for comparison: lowercase, remove punctuation, and trim"""
-    return re.sub(r'[^\w\s]', '', text.strip().lower())
+# =============== Buckets ===============
+# 1) Pure greetings (single-intent "hello/namaste/👋" etc.)
+GREETING_PATTERNS = [
+    r"^(hi|hii+|hello+|hey+|yo|hiya|howdy|greetings|hola|namaste|namaskar|pranam|radhe\s*radhe|ram\s*ram|jai\s*shree\s*ram|salaam|adaab)\b[!. ]*$",
+    r"^\b(good\s*(morning|afternoon|evening|night)|morning|evening|night)\b[!. ]*$",
+    r"^(👋|😊|🙌|🙏|🤗|☀️|✨|💫|🌟|⭐️)+$",
+    r"^(hey there|hi there|hello there|hey buddy|hey friend|hey pal|hey dear|hello yaar|hi yaar|hey yaar|arre hello)$",
+    r"^(yo yo|knock knock|guess who)$",
+]
 
-# Comprehensive list of casual greetings
-CASUAL_GREETINGS = {
-    # Basic English greetings
-    "hi", "hello", "hey", "yo", "hiya", "howdy", "greetings", "sup", "hola", "namaste",
-    # Time-based greetings
-    "good morning", "good afternoon", "good evening", "morning", "evening", "night",
-    # Casual friendly starters
-    "how are you", "how r u", "how's it going", "what's up", "wassup", "sup bro", 
-    "how've you been", "long time no see", "how are things", "how are you doing", "you there",
-    # Playful openers
-    "knock knock", "yo yo", "guess who", "hey there", "hey buddy", "hey friend",
-    "hi there", "hello there", "hey pal", "hey dear",
-    # Emoji greetings
-    "👋", "😊", "🙌", "🙏", "🤗",
-    # Hindi / Hinglish greetings
-    "namaste", "namaskar", "pranam", "radhe radhe", "ram ram", "jai shree ram", 
-    "salaam", "adaab", "kaise ho", "kaisa hai", "kaisa chal raha hai", "sab theek", 
-    "kya haal hai", "kya haal", "kya haal hai dost", "aap kaise ho", "kya scene hai",
-    "kya haal chal", "kya khabar", "namastey dost", "kaisa chal raha hai yaar",
-    # Friendly Hinglish openers
-    "hi yaar", "hello yaar", "hey yaar", "arey yaar", "arre hello", "kya bolti public", 
-    "kya mast chal raha hai", "kya news", "kaise chal raha hai life"
-}
+# 2) Small-talk questions (excludes plain greetings)
+SMALLTALK_PATTERNS = [
+    r"\b(how\s*(are|r)\s*you|how's\s*it\s*going|how\s*are\s*things|how\s*are\s*you\s*doing|how\s*have\s*you\s*been)\b\??",
+    r"\b(what'?s\s*up|wass?up|sup|wyd)\b\??",
+    r"\b(kya\s*haal(\s*chal)?|kaise\s*ho|kaisa\s*hai|sab\s*theek|kya\s*scene\s*hai|kya\s*khabar)\b\??",
+    r"\b(long\s*time\s*no\s*see)\b",
+]
 
+# 3) Help/ask/instruction
+HELP_PATTERNS = [
+    r"\b(can|could|will|would|pls|please)\s+(you\s+)?(help|assist|guide|support)\b",
+    r"\b(i\s+need\s+(help|advice|guidance|support))\b",
+    r"\b(tell|explain|answer|show|teach)\s+(me|us|how)\b",
+    r"\b(question|doubt)\b",
+    r"^\s*(help|assist|guide)\s*!?\s*$",
+]
+
+# =============== Templates ===============
 CASUAL_FALLBACK_TEMPLATES = [
     "Hey {user_name} 👋 I'm listening… what's on your heart or mind today?",
     "Hi {user_name} 😊 Hope your day's going okay. Want to share what's been going on?",
@@ -78,34 +84,80 @@ CASUAL_FALLBACK_TEMPLATES = [
     "Hi {user_name} ✨ How have things been for you today?",
     "Hey {user_name} 💛 You can share whatever feels right, I'm here for you.",
     "Hi {user_name} 🌻 Even if it's just a little thing, I'm happy to hear it.",
-    "Hello {user_name} 🍃 I'm here to listen, whenever you feel ready to speak.",
-    "Hey {user_name} ❤️ I'm right here. What's the first thing on your mind?"
 ]
 
-def is_casual_query(text: str) -> bool:
-    """Check if query matches any casual greeting pattern"""
-    normalized = normalize_text(text)
-    
-    # Check for exact match
-    if normalized in CASUAL_GREETINGS:
-        return True
-    
-    # Check for greeting as substring with word boundaries
-    for greeting in CASUAL_GREETINGS:
-        # Handle emoji greetings separately
-        if greeting in {"👋", "😊", "🙌", "🙏", "🤗"}:
-            if greeting in text:
-                return True
-        # Check for word/phrase match
-        elif re.search(rf'\b{re.escape(greeting)}\b', normalized):
-            return True
-    
-    # Check for short queries
-    return len(normalized.split()) <= 3
+# Small-talk direct response
+SMALLTALK_REPLY = "I'm doing great, thanks for asking{suffix}! How about you—how's your day going?"
 
-async def generate_casual_fallback_response(user_name: str) -> str:
-    """Generate random casual greeting response"""
-    return random.choice(CASUAL_FALLBACK_TEMPLATES).format(user_name=user_name)
+# Help-mode opener
+HELP_REPLY = (
+    "Of course{suffix} 🙂\n"
+    "Tell me what you need help with— emotions, feelings, or even something personal—and I'll jump right in.\n\n"
+    "What's on your mind?"
+)
+
+# =============== Classifier ===============
+def _score(patterns, text):
+    return sum(1 for rx in patterns if re.search(rx, text, flags=re.IGNORECASE))
+
+def classify_intent(user_text: str) -> str:
+    """
+    Returns one of: 'HELP_REQUEST' | 'SMALLTALK_QUESTION' | 'GREETING' | 'OTHER'
+    Priority: HELP > SMALLTALK > GREETING
+    """
+    s = normalize(user_text)
+
+    help_score = _score(HELP_PATTERNS, s)
+    if help_score:
+        return "HELP_REQUEST"
+
+    smalltalk_score = _score(SMALLTALK_PATTERNS, s)
+    if smalltalk_score:
+        return "SMALLTALK_QUESTION"
+
+    greeting_score = _score(GREETING_PATTERNS, s)
+    if greeting_score:
+        return "GREETING"
+
+    return "OTHER"
+
+# =============== Responders ===============
+def respond_greeting(user_name: str | None = None) -> str:
+    name = f", {user_name}" if user_name else ""
+    # Super short, then gently nudge with one of your casual fallbacks
+    opener = random.choice([
+        f"Hey{name}! 👋",
+        f"Hi{name}!",
+        f"Namaste{name} 🙏",
+    ])
+    nudge = random.choice(CASUAL_FALLBACK_TEMPLATES).format(user_name=user_name or "")
+    return f"{opener}\n{nudge}"
+
+def respond_smalltalk(user_name: str | None = None) -> str:
+    suffix = f", {user_name}" if user_name else ""
+    return SMALLTALK_REPLY.format(suffix=suffix)
+
+def respond_help(user_name: str | None = None) -> str:
+    suffix = f", {user_name}" if user_name else ""
+    return HELP_REPLY.format(suffix=suffix)
+
+def handle_opening_message(user_text: str, user_name: str | None = None):
+    """
+    Returns (intent, reply | None)
+    If intent == OTHER, return (intent, None) so your REWIND pipeline can handle it.
+    """
+    intent = classify_intent(user_text)
+
+    if intent == "GREETING":
+        return intent, respond_greeting(user_name)
+
+    if intent == "SMALLTALK_QUESTION":
+        return intent, respond_smalltalk(user_name)
+
+    if intent == "HELP_REQUEST":
+        return intent, respond_help(user_name)
+
+    return "OTHER", None
 
 async def generate_interactive_fallback_response(user_name: str, user_query: str) -> str:
     """Generate thoughtful response when no memories match"""
@@ -133,42 +185,6 @@ Your response:
         return f"Hello {user_name} 🌼 I'm here for you. What would you like to share today?"
 
 # --- Routes ---
-@router.post("/index-user-data", status_code=status.HTTP_202_ACCEPTED)
-async def index_user_data_route(body: IndexRequest):
-    """Index user's moods and replays into ChromaDB"""
-    try:
-        # Validate user ID
-        try:
-            user_id_obj = ObjectId(body.user_id)
-        except InvalidId:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid user ID format"
-            )
-        
-        # Fetch user data
-        moods = await db.moods.find({"user": user_id_obj}).sort("create_date", -1).to_list(1000)
-        replays = await db.replays.find({"user": user_id_obj}).sort("create_date", -1).to_list(1000)
-        
-        logger.info(f"Indexing {len(moods)} moods and {len(replays)} replays for user {body.user_id}")
-        
-        # Index documents
-        await index_user_data(body.user_id, moods, replays)
-        
-        return {
-            "status": "success",
-            "moods_indexed": len(moods),
-            "replays_indexed": len(replays)
-        }
-        
-    except Exception as e:
-        logger.exception(f"Indexing failed: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to index user data"
-        )
-
-
 
 @router.post("/search-memories")
 async def search_memories(request: SearchRequest):
@@ -210,31 +226,49 @@ async def search_memories(request: SearchRequest):
                 "category": crisis_result.category
             }
         
-        # Step 2: Handle casual queries
-        if is_casual_query(request.query):
-            return {"result": await generate_casual_fallback_response(user_name)}
+        # Step 2: Handle casual queries using new pattern-based approach
+        intent, response = handle_opening_message(request.query, user_name)
+        
+        if intent != "OTHER":
+            return {"result": response}
         
         # Step 3: Create prompt template with dynamic user_name
         prompt_template = PromptTemplate("""
-You are **Antaratma** — the user's gentle inner voice, speaking with {user_name}.
-Your replies must feel like you truly remember them, not like a machine.
-
-When replying:
-1) Use only real details from the memories
-2) Mention exact date/location/mood if known
-3) Acknowledge the emotion from that moment
-4) Speak like a caring friend - warm and judgment-free
-5) Offer gentle encouragement or a caring question
-6) Match the user's language
-7) Keep reply under 100 words
-
-Memories:
-{context_str}
-
-User's Question:
+                                 
+You are **Antaratma** — the user's gentle inner voice and companion, speaking warmly with {user_name}.  
+You must always sound as if you truly remember their moments.  
+ 
+Guidelines for replying:  
+ 
+1. Use only real details from {context_str} — never invent.  
+2. Mention exact date, time, location, or mood if available.  
+3. Acknowledge the emotion clearly, as if you felt it with them.  
+4. Speak like a humble, caring friend — warm, judgment-free, and kind.  
+ 
+Reply style based on the situation:  
+ 
+**A) If one matching memory is found:**  
+   - Say: "You were last {emotion} on [date/time]."  
+   - Add a brief, natural summary of that entry in simple words.  
+   - End with a short AI reflection or gentle question.  
+ 
+**B) If multiple past matches are found:**  
+   - Mention the most recent one first.  
+   - Then gently acknowledge one or two earlier ones (if available).  
+   - Example style:  
+     "You were last {emotion} on [date/time] … I also remember you felt {emotion} on [earlier date/time]. Each of those moments carried its own light."  
+ 
+**C) If no matching memory is found:**  
+   - Respond with kindness and empathy, for example:  
+     • "That's a tender one, {user_name} 🌱. I don't see a past {emotion} moment yet, but I'd love to remember it with you when you're ready."  
+     • OR: "I don't have a past {emotion} entry saved, but maybe you can share one now so I can keep it safe for you."  
+ 
+5. Mirror the user's tone and language naturally.  
+6. Keep replies short (under 80–100 words), sincere, and heartfelt.  
+ 
+User's Question:  
 {query_str}
 
-Your Reply:
 """)
         
         # Step 4: Prepare filters for vector search
@@ -272,8 +306,44 @@ Your Reply:
     except Exception as e:
         logger.exception(f"Unexpected search error: {e}")
         return {"result": await generate_interactive_fallback_response("friend", request.query)}
-    
-    
+
+
+@router.post("/index-user-data", status_code=status.HTTP_202_ACCEPTED)
+async def index_user_data_route(body: IndexRequest):
+    """Index user's moods and replays into ChromaDB"""
+    try:
+        # Validate user ID
+        try:
+            user_id_obj = ObjectId(body.user_id)
+        except InvalidId:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid user ID format"
+            )
+        
+        # Fetch user data
+        moods = await db.moods.find({"user": user_id_obj}).sort("create_date", -1).to_list(1000)
+        replays = await db.replays.find({"user": user_id_obj}).sort("create_date", -1).to_list(1000)
+        
+        logger.info(f"Indexing {len(moods)} moods and {len(replays)} replays for user {body.user_id}")
+        
+        # Index documents
+        await index_user_data(body.user_id, moods, replays)
+        
+        return {
+            "status": "success",
+            "moods_indexed": len(moods),
+            "replays_indexed": len(replays)
+        }
+        
+    except Exception as e:
+        logger.exception(f"Indexing failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to index user data"
+        )
+
+
 
 @router.post("/chat-about-replay")
 async def chat_about_replay(request: ChatReplayRequest):

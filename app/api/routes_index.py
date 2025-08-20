@@ -7,6 +7,8 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import re
 import logging
+from typing import Dict, List, Tuple
+from datetime import datetime, timedelta
 
 from app.db.mongo_client import db
 from app.db.llama_index_client import index, llm
@@ -18,6 +20,12 @@ from app.services.crisis_guard import guard_message, DetectOutput
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+# --- In-memory chat history storage ---
+# Structure: {user_id: {"history": [{"role": "user|assistant", "content": str, "timestamp": datetime}], "last_activity": datetime}}
+user_chat_sessions: Dict[str, Dict] = {}
+MAX_HISTORY_LENGTH = 10  # Keep last 10 messages
+SESSION_TIMEOUT = timedelta(minutes=30)  # Session expires after 30 minutes of inactivity
 
 # --- Models ---
 class SearchRequest(BaseModel):
@@ -96,6 +104,66 @@ HELP_REPLY = (
     "What's on your mind?"
 )
 
+# Emotional support templates for when no memories are found
+EMOTIONAL_SUPPORT_TEMPLATES = [
+    "I hear you, {user_name} 💛 It sounds like you're going through something difficult. Would you like to talk more about what's happening?",
+    "Thank you for sharing that with me, {user_name} 🌼 I'm here to listen whenever you're ready to share more.",
+    "I'm here with you, {user_name} 🌸 Whatever you're feeling is valid, and I'm here to support you through it.",
+    "That sounds really challenging, {user_name} 💭 Would it help to talk through what's been going on?",
+    "I'm listening, {user_name} 🍃 Take your time, and share what feels comfortable for you.",
+]
+
+# =============== Chat History Management ===============
+def get_user_session(user_id: str) -> Dict:
+    """Get or create a chat session for a user"""
+    now = datetime.now()
+    
+    # Clean up expired sessions first
+    expired_users = []
+    for uid, session in user_chat_sessions.items():
+        if now - session["last_activity"] > SESSION_TIMEOUT:
+            expired_users.append(uid)
+    
+    for uid in expired_users:
+        del user_chat_sessions[uid]
+    
+    # Get or create session for current user
+    if user_id not in user_chat_sessions:
+        user_chat_sessions[user_id] = {
+            "history": [],
+            "last_activity": now
+        }
+    else:
+        user_chat_sessions[user_id]["last_activity"] = now
+        
+    return user_chat_sessions[user_id]
+
+def add_to_history(user_id: str, role: str, content: str):
+    """Add a message to user's chat history"""
+    session = get_user_session(user_id)
+    session["history"].append({
+        "role": role,
+        "content": content,
+        "timestamp": datetime.now()
+    })
+    
+    # Trim history to max length
+    if len(session["history"]) > MAX_HISTORY_LENGTH:
+        session["history"] = session["history"][-MAX_HISTORY_LENGTH:]
+
+def format_chat_history(user_id: str) -> str:
+    """Format chat history for inclusion in LLM context"""
+    session = get_user_session(user_id)
+    if not session["history"]:
+        return "No previous conversation history."
+    
+    history_text = "Previous conversation:\n"
+    for msg in session["history"]:
+        speaker = "You" if msg["role"] == "user" else "I"
+        history_text += f"{speaker}: {msg['content']}\n"
+    
+    return history_text
+
 # =============== Classifier ===============
 def _score(patterns, text):
     return sum(1 for rx in patterns if re.search(rx, text, flags=re.IGNORECASE))
@@ -123,23 +191,23 @@ def classify_intent(user_text: str) -> str:
 
 # =============== Responders ===============
 def respond_greeting(user_name: str | None = None) -> str:
-    name = f", {user_name}" if user_name else ""
+    name = user_name or "friend"
     # Super short, then gently nudge with one of your casual fallbacks
     opener = random.choice([
-        f"Hey{name}! 👋",
-        f"Hi{name}!",
-        f"Namaste{name} 🙏",
+        f"Hey, {name}! 👋",
+        f"Hi, {name}!",
+        f"Namaste, {name} 🙏",
     ])
-    nudge = random.choice(CASUAL_FALLBACK_TEMPLATES).format(user_name=user_name or "")
+    nudge = random.choice(CASUAL_FALLBACK_TEMPLATES).format(user_name=name)
     return f"{opener}\n{nudge}"
 
 def respond_smalltalk(user_name: str | None = None) -> str:
-    suffix = f", {user_name}" if user_name else ""
-    return SMALLTALK_REPLY.format(suffix=suffix)
+    name = user_name or "friend"
+    return SMALLTALK_REPLY.format(suffix=f", {name}")
 
 def respond_help(user_name: str | None = None) -> str:
-    suffix = f", {user_name}" if user_name else ""
-    return HELP_REPLY.format(suffix=suffix)
+    name = user_name or "friend"
+    return HELP_REPLY.format(suffix=f", {name}")
 
 def handle_opening_message(user_text: str, user_name: str | None = None):
     """
@@ -159,8 +227,18 @@ def handle_opening_message(user_text: str, user_name: str | None = None):
 
     return "OTHER", None
 
-async def generate_interactive_fallback_response(user_name: str, user_query: str) -> str:
+async def generate_interactive_fallback_response(user_name: str, user_query: str, chat_history: str = "") -> str:
     """Generate thoughtful response when no memories match"""
+    # Check if this seems like an emotional query
+    emotional_keywords = ["bad", "sad", "upset", "angry", "stressed", "anxious", "worried", 
+                         "depressed", "lonely", "hurt", "pain", "struggle", "difficult"]
+    
+    if any(keyword in user_query.lower() for keyword in emotional_keywords):
+        return random.choice(EMOTIONAL_SUPPORT_TEMPLATES).format(user_name=user_name)
+    
+    # Include chat history in the prompt for context
+    history_context = f"\n\nChat history:\n{chat_history}" if chat_history else ""
+    
     prompt = f"""
 You are Antaratma, the user's inner voice chatting with {user_name} — a warm, compassionate, and deeply caring soul.
 Speak as if you know them personally, holding space for their emotions with tenderness and respect.
@@ -170,16 +248,23 @@ Keep responses under 100 words, but make them feel personal, nurturing, and safe
 If appropriate, ask a gentle follow-up question to keep their heart open.
 Use simple, beautiful language that touches the soul. 
 
+{history_context}
+
 User's input: "{user_query}"
 Your response:
 """
     try:
         def call_llm_sync():
-            return llm.complete(prompt).text.strip()
+            response = llm.complete(prompt).text.strip()
+            # Ensure we don't return empty responses
+            if not response or response.isspace():
+                return f"Hello {user_name} 🌼 I'm here for you. What would you like to share today?"
+            return response
         
         loop = asyncio.get_running_loop()
         with ThreadPoolExecutor(max_workers=1) as executor:
-            return await loop.run_in_executor(executor, call_llm_sync)
+            response = await loop.run_in_executor(executor, call_llm_sync)
+            return response
     except Exception as e:
         logger.error(f"LLM fallback failed: {e}")
         return f"Hello {user_name} 🌼 I'm here for you. What would you like to share today?"
@@ -226,18 +311,29 @@ async def search_memories(request: SearchRequest):
                 "category": crisis_result.category
             }
         
+        # Add user message to chat history
+        add_to_history(request.user_id, "user", request.query)
+        
         # Step 2: Handle casual queries using new pattern-based approach
         intent, response = handle_opening_message(request.query, user_name)
         
         if intent != "OTHER":
+            # Add assistant response to history
+            add_to_history(request.user_id, "assistant", response)
             return {"result": response}
         
-        # Step 3: Create prompt template with dynamic user_name
+        # Get chat history for context
+        chat_history = format_chat_history(request.user_id)
+        
+        # Step 3: Create prompt template with dynamic user_name and chat history
         prompt_template = PromptTemplate("""
                                  
 You are **Antaratma** — the user's gentle inner voice and companion, speaking warmly with {user_name}.  
 You must always sound as if you truly remember their moments.  
- 
+
+Recent conversation context:
+{chat_history}
+
 Guidelines for replying:  
  
 1. Use only real details from {context_str} — never invent.  
@@ -283,8 +379,8 @@ User's Question:
                 filters=filters,
                 text_qa_template=prompt_template,
                 verbose=False,
-                # Pass user_name as template variable
-                template_vars={"user_name": user_name}
+                # Pass user_name and chat_history as template variables
+                template_vars={"user_name": user_name, "chat_history": chat_history}
             )
             
             response = await asyncio.to_thread(query_engine.query, request.query)
@@ -292,23 +388,41 @@ User's Question:
             
             if response_text:
                 response_text = response_text.replace("{user_name}", user_name)
+                
+                # Ensure we don't return empty responses
+                if not response_text or response_text.isspace():
+                    logger.info("Vector search returned empty response, using interactive fallback")
+                    fallback_response = await generate_interactive_fallback_response(user_name, request.query, chat_history)
+                    add_to_history(request.user_id, "assistant", fallback_response)
+                    return {"result": fallback_response}
+                
+                # Add assistant response to history
+                add_to_history(request.user_id, "assistant", response_text)
                 return {"result": response_text}
             else:
-                return {"result": await generate_interactive_fallback_response(user_name, request.query)}
+                logger.info("Vector search returned empty response, using interactive fallback")
+                fallback_response = await generate_interactive_fallback_response(user_name, request.query, chat_history)
+                add_to_history(request.user_id, "assistant", fallback_response)
+                return {"result": fallback_response}
 
         
         except Exception as e:
             logger.error(f"Vector search failed: {e}")
-        
-        # Step 6: Fallback to interactive response
-        logger.info("Using interactive fallback response")
-        return {"result": await generate_interactive_fallback_response(user_name, request.query)}
+            fallback_response = await generate_interactive_fallback_response(user_name, request.query, chat_history)
+            add_to_history(request.user_id, "assistant", fallback_response)
+            return {"result": fallback_response}
         
     except HTTPException:
         raise
     except Exception as e:
         logger.exception(f"Unexpected search error: {e}")
-        return {"result": await generate_interactive_fallback_response("friend", request.query)}
+        fallback_response = await generate_interactive_fallback_response("friend", request.query)
+        add_to_history(request.user_id, "assistant", fallback_response)
+        return {"result": fallback_response}
+
+
+
+
 
 
 @router.post("/index-user-data", status_code=status.HTTP_202_ACCEPTED)

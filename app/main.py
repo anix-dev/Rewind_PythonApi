@@ -14,6 +14,7 @@ from app.db.mongo_client import verify_connection  # MongoDB check
 from app.api.routes_emotion import router as emotion_router
 from app.api.routes_replay import router as replay_router
 # from app.api.routes_healing import router as healing_router  # Optional
+from app.api.routes_transcribe import router as transcribe_router
 
 from app.api.routes_index import router as index_router
 
@@ -80,6 +81,7 @@ async def startup_event():
 app.include_router(emotion_router, prefix="/api")
 app.include_router(replay_router, prefix="/api")
 app.include_router(index_router, prefix="/api")
+app.include_router(transcribe_router, prefix="/api")
 
 # app.include_router(healing_router, prefix="/api")  # Optional
 

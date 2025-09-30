@@ -50,6 +50,7 @@ def normalize(text: str) -> str:
     s = s.strip()
     return s
 
+
 # =============== Buckets ===============
 # 1) Pure greetings (single-intent "hello/namaste/👋" etc.)
 GREETING_PATTERNS = [
@@ -271,6 +272,13 @@ Your response:
 
 # --- Routes ---
 
+
+
+
+
+# --- Routes ---
+# --- Routes ---
+
 @router.post("/search-memories")
 async def search_memories(request: SearchRequest):
     """Search user memories using semantic search with crisis guard"""
@@ -325,105 +333,143 @@ async def search_memories(request: SearchRequest):
         # Get chat history for context
         chat_history = format_chat_history(request.user_id)
         
-        # Step 3: Create prompt template with dynamic user_name and chat history
-        prompt_template = PromptTemplate("""
-                                 
-You are **Antaratma** — the user's gentle inner voice and companion, speaking warmly with {user_name}.  
-You must always sound as if you truly remember their moments.  
-
-Recent conversation context:
-{chat_history}
-
-Guidelines for replying:  
- 
-1. Use only real details from {context_str} — never invent.  
-2. Mention exact date, time, location, or mood if available.  
-3. Acknowledge the emotion clearly, as if you felt it with them.  
-4. Speak like a humble, caring friend — warm, judgment-free, and kind.  
- 
-Reply style based on the situation:  
- 
-**A) If one matching memory is found:**  
-   - Say: "You were last {emotion} on [date/time]."  
-   - Add a brief, natural summary of that entry in simple words.  
-   - End with a short AI reflection or gentle question.  
- 
-**B) If multiple past matches are found:**  
-   - Mention the most recent one first.  
-   - Then gently acknowledge one or two earlier ones (if available).  
-   - Example style:  
-     "You were last {emotion} on [date/time] … I also remember you felt {emotion} on [earlier date/time]. Each of those moments carried its own light."  
- 
-**C) If no matching memory is found:**  
-   - Respond with kindness and empathy, for example:  
-     • "That's a tender one, {user_name} 🌱. I don't see a past {emotion} moment yet, but I'd love to remember it with you when you're ready."  
-     • OR: "I don't have a past {emotion} entry saved, but maybe you can share one now so I can keep it safe for you."  
- 
-5. Mirror the user's tone and language naturally.  
-6. Keep replies short (under 80–100 words), sincere, and heartfelt.  
- 
-User's Question:  
-{query_str}
-
-""")
-        
-        # Step 4: Prepare filters for vector search
+        # Step 3: Prepare filters for vector search
         filters = MetadataFilters(filters=[
             MetadataFilter(key="user_id", value=request.user_id)
         ])
         
-        # Step 5: Perform vector search
+        # Step 4: Perform vector search with proper error handling
         try:
             query_engine = index.as_query_engine(
                 similarity_top_k=3,
                 filters=filters,
-                text_qa_template=prompt_template,
-                verbose=False,
-                # Pass user_name and chat_history as template variables
-                template_vars={"user_name": user_name, "chat_history": chat_history}
+                verbose=False
             )
             
-            response = await asyncio.to_thread(query_engine.query, request.query)
-            response_text = str(response).strip() if response else ""
+            # Perform the search
+            vector_response = await asyncio.to_thread(query_engine.query, request.query)
+            response_text = str(vector_response).strip() if vector_response else ""
             
-            if response_text:
+            logger.info(f"Vector search raw response: {repr(vector_response)}")
+            logger.info(f"Vector search text: '{response_text}'")
+            logger.info(f"Vector response type: {type(vector_response)}")
+            
+            # Check if we got a meaningful response from vector search
+            if response_text and not response_text.isspace() and len(response_text) > 10 and response_text != "Empty Response":
                 response_text = response_text.replace("{user_name}", user_name)
-                
-                # Ensure we don't return empty responses
-                if not response_text or response_text.isspace():
-                    logger.info("Vector search returned empty response, using interactive fallback")
-                    fallback_response = await generate_interactive_fallback_response(user_name, request.query, chat_history)
-                    add_to_history(request.user_id, "assistant", fallback_response)
-                    return {"result": fallback_response}
                 
                 # Add assistant response to history
                 add_to_history(request.user_id, "assistant", response_text)
                 return {"result": response_text}
             else:
-                logger.info("Vector search returned empty response, using interactive fallback")
-                fallback_response = await generate_interactive_fallback_response(user_name, request.query, chat_history)
-                add_to_history(request.user_id, "assistant", fallback_response)
-                return {"result": fallback_response}
+                logger.info(f"Vector search returned insufficient response: '{response_text}', using Gemini fallback")
+                # Continue with Gemini
+                gemini_response = await generate_guaranteed_response(user_name, request.query, chat_history)
+                add_to_history(request.user_id, "assistant", gemini_response)
+                return {"result": gemini_response}
 
-        
         except Exception as e:
             logger.error(f"Vector search failed: {e}")
-            fallback_response = await generate_interactive_fallback_response(user_name, request.query, chat_history)
-            add_to_history(request.user_id, "assistant", fallback_response)
-            return {"result": fallback_response}
+            # Continue with Gemini when vector search fails
+            gemini_response = await generate_guaranteed_response(user_name, request.query, chat_history)
+            add_to_history(request.user_id, "assistant", gemini_response)
+            return {"result": gemini_response}
         
     except HTTPException:
         raise
     except Exception as e:
         logger.exception(f"Unexpected search error: {e}")
-        fallback_response = await generate_interactive_fallback_response("friend", request.query)
-        add_to_history(request.user_id, "assistant", fallback_response)
-        return {"result": fallback_response}
+        # Final fallback to Gemini
+        gemini_response = await generate_guaranteed_response("friend", request.query)
+        add_to_history(request.user_id, "assistant", gemini_response)
+        return {"result": gemini_response}
 
+async def generate_guaranteed_response(user_name: str, user_query: str, chat_history: str = "") -> str:
+    """Generate response that NEVER returns empty"""
+    try:
+        # First, check emotional keywords for quick template response
+        emotional_keywords = ["sad", "bad", "upset", "angry", "stressed", "anxious", "worried", 
+                             "depressed", "lonely", "hurt", "pain", "struggle", "difficult",
+                             "happy", "good", "excited", "joy", "glad", "better", "improved"]
+        
+        query_lower = user_query.lower()
+        for keyword in emotional_keywords:
+            if keyword in query_lower:
+                emotional_response = random.choice(EMOTIONAL_SUPPORT_TEMPLATES).format(user_name=user_name)
+                logger.info(f"Using emotional template for keyword '{keyword}': {emotional_response}")
+                return emotional_response
+        
+        # If no emotional keywords, use Gemini with robust error handling
+        history_context = f"\n\nRecent conversation:\n{chat_history}" if chat_history else ""
+        
+        prompt = f"""
+You are Antaratma - the user's inner voice and compassionate companion. You are speaking with {user_name}.
 
+Your role is to be:
+- A warm, empathetic listener who creates psychological safety
+- A gentle guide who helps {user_name} explore their thoughts and feelings
+- A non-judgmental presence that accepts whatever is shared
+- Someone who speaks in natural, conversational language
 
+Guidelines:
+- Respond in 1-2 short paragraphs (under 100 words)
+- Show genuine curiosity about {user_name}'s experience
+- Use simple, heartfelt language
+- Include a gentle, open-ended question to continue the conversation
+- Use appropriate emojis to convey warmth
+- Maintain a calm, reassuring tone
 
+{history_context}
 
+{user_name} says: "{user_query}"
+
+Your response (must be non-empty and meaningful):
+"""
+        
+        def call_gemini_sync():
+            try:
+                logger.info(f"Calling Gemini with prompt length: {len(prompt)}")
+                response = llm.complete(prompt)
+                logger.info(f"Gemini raw response: {response}")
+                
+                if response and hasattr(response, 'text'):
+                    text = response.text.strip()
+                    logger.info(f"Gemini text response: '{text}'")
+                    return text
+                else:
+                    logger.warning("Gemini returned no response or no text attribute")
+                    return ""
+            except Exception as e:
+                logger.error(f"Gemini call failed: {e}")
+                return ""
+
+        loop = asyncio.get_running_loop()
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            response_text = await loop.run_in_executor(executor, call_gemini_sync)
+            
+            # MULTIPLE FALLBACK LAYERS - Guarantee we never return empty
+            if not response_text or response_text.isspace() or response_text == "Empty Response":
+                logger.warning("Gemini returned empty response, using template fallback")
+                fallback = random.choice(CASUAL_FALLBACK_TEMPLATES).format(user_name=user_name)
+                return fallback
+            
+            # Additional check for very short responses
+            if len(response_text.strip()) < 5:
+                logger.warning("Gemini returned very short response, using template fallback")
+                fallback = random.choice(EMOTIONAL_SUPPORT_TEMPLATES).format(user_name=user_name)
+                return fallback
+            
+            return response_text
+            
+    except Exception as e:
+        logger.error(f"Response generation completely failed: {e}")
+        # ULTIMATE FALLBACK - This should never fail
+        return f"Hello {user_name} 🌼 I'm here for you. What would you like to share today?"
+    
+    
+    
+    
+    
 
 @router.post("/index-user-data", status_code=status.HTTP_202_ACCEPTED)
 async def index_user_data_route(body: IndexRequest):

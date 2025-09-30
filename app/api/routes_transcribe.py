@@ -1,56 +1,63 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from pydub import AudioSegment
-import wave
-import os
-import json
 from vosk import Model, KaldiRecognizer
+from deep_translator import GoogleTranslator
+import io, wave, json
 
-router = APIRouter()
+router = APIRouter(tags=["Transcription"])
 
-# Correct path to Vosk model (relative to project root)
-model_path = os.path.join("app", "models", "speech", "en-us")
-
-if not os.path.exists(model_path):
-    raise RuntimeError(f"Vosk model not found at {model_path}. Make sure it's downloaded and extracted.")
+# Use only Hindi small model for multilingual recognition
+model_path = "app/models/speech/hi"
 model = Model(model_path)
 
-
-@router.post("/transcribe")
-async def transcribe(file: UploadFile = File(...)):
+def safe_json_parse(text: str) -> str:
     """
-    Accepts an uploaded audio file, converts it to 16kHz mono WAV,
-    and transcribes speech using Vosk.
+    Safely parse Vosk JSON result, return empty string on failure.
     """
     try:
-        # Save uploaded file temporarily
-        temp_input = "temp_input.m4a"
-        with open(temp_input, "wb") as f:
-            f.write(await file.read())
+        data = json.loads(text)
+        return data.get("text", "")
+    except json.JSONDecodeError:
+        return ""
 
-        # Convert to wav (mono, 16kHz)
-        temp_wav = "temp.wav"
-        audio = AudioSegment.from_file(temp_input)
+@router.post("/transcribe/")
+async def transcribe(file: UploadFile = File(...)):
+    if file.content_type.split('/')[0] != "audio":
+        raise HTTPException(status_code=400, detail="Invalid audio file")
+
+    try:
+        # Convert audio to mono 16kHz WAV
+        audio_bytes = await file.read()
+        audio = AudioSegment.from_file(io.BytesIO(audio_bytes))
         audio = audio.set_channels(1).set_frame_rate(16000)
-        audio.export(temp_wav, format="wav")
 
-        # Run Vosk recognition
-        wf = wave.open(temp_wav, "rb")
+        wav_io = io.BytesIO()
+        audio.export(wav_io, format="wav")
+        wav_io.seek(0)
+
+        wf = wave.open(wav_io, "rb")
         rec = KaldiRecognizer(model, wf.getframerate())
-        result_text = ""
 
+        result_text = []
         while True:
             data = wf.readframes(4000)
             if len(data) == 0:
                 break
             if rec.AcceptWaveform(data):
-                result_text += rec.Result()
-        result_text += rec.FinalResult()
+                result_text.append(safe_json_parse(rec.Result()))
 
-        wf.close()
-        os.remove(temp_input)
-        os.remove(temp_wav)
+        result_text.append(safe_json_parse(rec.FinalResult()))
 
-        return json.loads(result_text)
+        # Merge text
+        text = " ".join([r for r in result_text if r.strip() != ""])
+
+        if not text:
+            raise HTTPException(status_code=500, detail="Transcription failed: No text recognized")
+
+        # Translate to English
+        translation = GoogleTranslator(source='auto', target='en').translate(text)
+
+        return {"transcription_en": translation}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Transcription failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Transcription failed: {str(e)}")

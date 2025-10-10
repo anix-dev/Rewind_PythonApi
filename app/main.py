@@ -17,6 +17,7 @@ from app.api.routes_replay import router as replay_router
 from app.api.routes_transcribe import router as transcribe_router
 
 from app.api.routes_index import router as index_router
+from app.api.upload_router import router as upload_router
 
 
 
@@ -82,6 +83,7 @@ app.include_router(emotion_router, prefix="/api")
 app.include_router(replay_router, prefix="/api")
 app.include_router(index_router, prefix="/api")
 app.include_router(transcribe_router, prefix="/api")
+app.include_router(upload_router, prefix="/api")
 
 # app.include_router(healing_router, prefix="/api")  # Optional
 

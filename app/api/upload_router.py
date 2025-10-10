@@ -1,8 +1,15 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from typing import List
-from app.db.s3_client import upload_file_to_s3
+from pydantic import BaseModel
+from urllib.parse import urlparse  # <--- needed
+from app.db.s3_client import upload_file_to_s3, delete_file_from_s3  # <--- add delete_file_from_s3
 
 router = APIRouter(tags=["Uploads"])
+
+
+class DeleteImagesRequest(BaseModel):
+    urls: List[str]  # Array of S3 URLs to delete
+
 
 @router.post("/upload-images/")
 async def upload_images(files: List[UploadFile] = File(...)):
@@ -34,3 +41,28 @@ async def upload_images(files: List[UploadFile] = File(...)):
         raise HTTPException(status_code=500, detail="No valid images were uploaded")
 
     return {"uploaded_images": uploaded_urls}
+
+
+@router.delete("/delete-images/")
+async def delete_images(request: DeleteImagesRequest):
+    if not request.urls:
+        raise HTTPException(status_code=400, detail="No URLs provided")
+
+    failed = []
+    for url in request.urls:
+        # Extract the S3 key from URL
+        parsed_url = urlparse(url)
+        # Remove the leading '/' if exists
+        s3_key = parsed_url.path.lstrip('/')
+        
+        success = delete_file_from_s3(s3_key)
+        if not success:
+            failed.append(url)
+
+    if failed:
+        return {
+            "detail": "Some images could not be deleted",
+            "failed_urls": failed
+        }
+
+    return {"detail": "All images deleted successfully"}

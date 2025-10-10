@@ -29,6 +29,10 @@ class MoodCreateRequest(BaseModel):
     context_tags: Optional[List[str]] = []
     replay_opportunity_score: Optional[str] = "0.5"
     create_date: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    images: Optional[List[str]] = Field(
+        default=None,
+        description="List of S3 image URLs or null (optional)"
+    )
 
 
 class ReplayCreateRequest(BaseModel):
@@ -41,3 +45,7 @@ class ReplayCreateRequest(BaseModel):
     moods: str  # String, will be converted to ObjectId
     create_date: Optional[datetime] = Field(default_factory=datetime.utcnow)
     updatedAt: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    images: Optional[List[str]] = Field(
+        default=None,
+        description="List of S3 image URLs or null (optional)"
+    )

@@ -63,7 +63,6 @@ async def list_collections():
     print(f"[INFO] Available collections: {collections}")
     return {"collections": collections}
 
-
 @router.post("/mood-detect")
 async def create_mood_with_replay(mood_data: MoodCreateRequest):
     try:
@@ -71,13 +70,22 @@ async def create_mood_with_replay(mood_data: MoodCreateRequest):
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid user_id format")
 
-    # Insert mood
+    # Convert request to dict
     mood_dict = mood_data.dict()
     mood_dict["user"] = user_object_id
+
+    # Ensure images is a list or None
+    if "images" in mood_dict and mood_dict["images"] is not None:
+        if not isinstance(mood_dict["images"], list):
+            mood_dict["images"] = [mood_dict["images"]]
+    else:
+        mood_dict["images"] = None
+
+    # Insert mood into MongoDB
     mood_result = await db.moods.insert_one(mood_dict)
     created_mood = await db.moods.find_one({"_id": mood_result.inserted_id})
 
-    # Build replay using same logic as /replay
+    # Build replay context
     context = {
         "mood_today": created_mood.get("mood"),
         "user_location": {
@@ -86,8 +94,9 @@ async def create_mood_with_replay(mood_data: MoodCreateRequest):
         },
         "today_date": created_mood.get("create_date"),
     }
-    replay_generated = build_replay(created_mood, context)  # returns ai_response, context_tags, location, replay_opportunity_score
+    replay_generated = build_replay(created_mood, context)
 
+    # Prepare replay payload
     replay_payload = {
         "user_response": created_mood.get("user_text", ""),
         "mood": created_mood.get("mood"),
@@ -102,11 +111,14 @@ async def create_mood_with_replay(mood_data: MoodCreateRequest):
         "moods": created_mood["_id"],
         "location": replay_generated.get("location"),
         "create_date": created_mood.get("create_date"),
+        "images": created_mood.get("images")  # ✅ Now using `images` array
     }
 
+    # Insert replay into MongoDB
     replay_result = await db.replays.insert_one(replay_payload)
     created_replay = await db.replays.find_one({"_id": replay_result.inserted_id})
 
+    # Index data for search
     try:
         await index_user_data(
             user_id=str(user_object_id),
@@ -116,10 +128,8 @@ async def create_mood_with_replay(mood_data: MoodCreateRequest):
     except Exception as e:
         print(f"❌ Indexing failed: {e}")
 
+    # Return serialized response
     return {
         "mood": serialize_mongo_doc(created_mood),
         "replay": serialize_mongo_rep(created_replay)
     }
-
-
-

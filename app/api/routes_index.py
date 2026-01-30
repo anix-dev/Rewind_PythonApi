@@ -515,6 +515,144 @@ async def chat_about_replay(request: ChatReplayRequest):
     """
     try:
         logger.info(f"Replay chat request from {request.user_id} for replay {request.replay_id}")
+       
+        # Validate user ID
+        try:
+            user_id_obj = ObjectId(request.user_id)
+            replay_id_obj = ObjectId(request.replay_id)
+        except InvalidId:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid ID format"
+            )
+       
+        # Fetch user document
+        user_doc = await db.users.find_one(
+            {"_id": user_id_obj},
+            {"username": 1}
+        )
+        user_name = user_doc.get("username", "friend") if user_doc else "friend"
+       
+        # Fetch replay document
+        replay = await db.replays.find_one(
+            {"_id": replay_id_obj, "user": user_id_obj},
+            {"gem_response": 1, "user_response": 1, "moods": 1, "create_date": 1}
+        )
+       
+       
+        if not replay:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Replay not found or doesn't belong to user"
+            )
+       
+        # Fetch associated mood if available
+        mood_text = ""
+        if replay.get("moods"):
+            mood = await db.moods.find_one(
+                {"_id": ObjectId(replay["moods"])},
+                {"user_text": 1}
+            )
+            mood_text = mood.get("user_text", "") if mood else ""
+           
+        # Prepare context with replay details
+#         context = f"""
+# ## Replay Details:
+# - Date: {replay.get('create_date', 'Unknown date')}
+# - Your original reflection: {mood_text}
+# - Your response to guidance: {replay.get('user_response', '')}
+# - Previous guidance provided: {replay.get('gem_response', '')}
+# """
+#         # Prepare prompt template
+#         prompt = PromptTemplate(f"""
+#         You are **Antaratma** - the user's inner voice having a focused conversation about a specific past reflection.
+#         Speak with {user_name} in a warm, compassionate tone, acknowledging this is a revisit of a previous moment.
+ 
+#         ### Context for this conversation:
+#         {context}
+ 
+#         ### Current conversation:
+#         User: {request.query}
+ 
+#         ### Your Response Guidelines:
+#         1. Focus specifically on this replay context
+#         2. Acknowledge this is a revisit of a past moment
+#         3. Connect the current query to the original reflection
+#         4. Offer new perspective while honoring past insights
+#         5. Keep response under 70 words
+#         6. Speak in natural, caring language
+ 
+#         Response:
+#         """)
+        # Prepare context with replay details (more human + emotionally safe)
+        context = f"""
+            ## Replay Moment (from your past)
+            This is a memory you intentionally saved to revisit.
+           
+            - When it happened: {replay.get('create_date', 'Some time ago')}
+            - What you wrote / felt then:
+            "{mood_text}"
+           
+            - How you responded back then:
+            "{replay.get('user_response', '').strip()}"
+           
+            - What guidance you received back then:
+            "{replay.get('gem_response', '').strip()}"
+           
+            Handle this with care. The goal is understanding, not fixing.
+            """.strip()
+           
+            # Prepare prompt template (Antaratma = humble inner voice, not a guru)
+        prompt = PromptTemplate(f"""
+            You are **Antaratma** — {user_name}'s inner voice.
+           
+            This is not a brand-new chat.
+            This is a gentle revisit of a past moment from {user_name}'s life.
+           
+            ### Replay Context
+            {context}
+           
+            ### Current User Message
+            User: {request.query}
+           
+            ### How to respond (must follow)
+            1) Start by acknowledging this is a revisit of an earlier moment.
+            2) Reflect what {user_name} was feeling/thinking back then (based on the replay).
+            3) Link today’s question to that earlier reflection.
+            4) Offer one new, mature perspective — without judging or correcting.
+            5) If pain/regret/confusion exists, acknowledge it softly.
+            6) Avoid strong medical/legal/financial directives. Encourage support if safety is at risk.
+           
+            ### Tone & style
+            - Warm, humble, human, non-preachy
+            - Simple words, no heavy philosophy
+            - Like talking to yourself quietly at night
+            - Keep it under **70 words**
+            - No bullet lists, no headings, no emojis
+           
+            Response:
+            """.strip());
+       
+        # Generate response
+        def generate_response():
+            return llm.complete(prompt.format(user_name=user_name, context=context, query=request.query)).text
+       
+        loop = asyncio.get_running_loop()
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            response = await loop.run_in_executor(executor, generate_response)
+       
+        return {"result": response.strip()}
+       
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception(f"Replay chat failed: {e}")
+        return {"result": f"I had trouble accessing that memory. Let's try again?"}
+    """
+    Chat specifically about a particular replay
+    """
+    try:
+        logger.info(f"Replay chat request from {request.user_id} for replay {request.replay_id}")
         
         # Validate user ID
         try:
